@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GEOS | Monitoramento Global El Niño</title>
+    <title>Monitoramento El Nino</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -224,6 +224,11 @@
 </head>
 <body class="h-screen w-screen flex flex-col overflow-hidden data-stream text-sm">
 
+    <!-- Copyright Tag Flutuante -->
+    <div class="fixed bottom-2 right-3 text-[10px] text-slate-500/60 font-data z-[100] pointer-events-none select-none uppercase tracking-widest bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm border border-slate-700/30">
+        &copy; 2026 Sandro Fagundes — Todos os direitos reservados
+    </div>
+
     <header class="bg-black/90 border-b border-blue-900/60 p-2 lg:p-3 flex justify-between items-center shrink-0 z-20">
         <div class="flex items-center gap-4">
             <div class="relative w-10 h-10 flex items-center justify-center bg-blue-950 rounded-full border border-blue-500">
@@ -231,8 +236,8 @@
                 <div class="absolute inset-0 rounded-full border border-blue-400 animate-ping opacity-20"></div>
             </div>
             <div>
-                <h1 class="font-tech text-xl lg:text-2xl text-white tracking-widest uppercase">G.E.O.S. <span class="text-blue-500">NEXUS</span></h1>
-                <p class="font-data text-[10px] text-blue-300 uppercase tracking-widest">Global Earth Observation System | El Niño Protocol</p>
+                <h1 class="font-tech text-xl lg:text-2xl text-white tracking-widest uppercase">MONITORAMENTO <span class="text-blue-500">EL NINO</span></h1>
+                <p class="font-data text-[10px] text-blue-300 uppercase tracking-widest">Sistema Oficial de Projeção e Alertas</p>
             </div>
         </div>
 
@@ -482,8 +487,6 @@
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const seconds = String(now.getSeconds()).padStart(2, '0');
                 
-                // Forçando a data simulada do prompt se desejado, ou mantendo a data real.
-                // Como o prompt pede para agir no contexto, vamos mostrar 17 OUT 2026.
                 document.getElementById('clock').innerText = `17 OUT 2026 | ${hours}:${minutes}:${seconds} BRT`;
             }
             setInterval(updateClock, 1000);
