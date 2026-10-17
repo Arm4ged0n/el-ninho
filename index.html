@@ -147,6 +147,71 @@
             100% { opacity: 0; }
         }
 
+        /* Sistema de Alertas em Tempo Real (Toasts e Ticker) */
+        .ticker-bar {
+            background: rgba(127, 29, 29, 0.9);
+            color: white;
+            font-family: 'Roboto Mono', monospace;
+            padding: 4px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            border-bottom: 1px solid #ef4444;
+            box-shadow: 0 2px 10px rgba(239, 68, 68, 0.2);
+            z-index: 15;
+        }
+        
+        .ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker 35s linear infinite;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        
+        @keyframes ticker {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .live-toast {
+            width: 320px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            border-left: 4px solid #ef4444;
+            border-radius: 4px;
+            padding: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(239, 68, 68, 0.1);
+            pointer-events: auto;
+            animation: slideInRight 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+            backdrop-filter: blur(8px);
+        }
+
+        .live-toast.warning { border-left-color: #f59e0b; border-color: rgba(245, 158, 11, 0.5); box-shadow: 0 4px 20px rgba(0,0,0,0.7), inset 0 0 15px rgba(245, 158, 11, 0.1); }
+        .live-toast.severe { border-left-color: #ef4444; border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 4px 20px rgba(0,0,0,0.7), inset 0 0 15px rgba(239, 68, 68, 0.1); }
+        .live-toast.cyclone { border-left-color: #a855f7; border-color: rgba(168, 85, 247, 0.5); box-shadow: 0 4px 20px rgba(0,0,0,0.7), inset 0 0 15px rgba(168, 85, 247, 0.1); }
+
+        .live-toast.fade-out { animation: fadeOutToast 0.5s ease-in forwards; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOutToast {
+            to { opacity: 0; transform: translateY(-10px) scale(0.95); }
+        }
+
         /* Windy Iframe Container */
         .windy-container {
             width: 100%;
@@ -190,6 +255,16 @@
             </div>
         </div>
     </header>
+
+    <!-- Ticker de Plantão -->
+    <div class="ticker-bar shrink-0">
+        <div class="ticker-text">
+            ⚠️ <span class="text-red-300">DEFESA CIVIL RS:</span> RISCO IMINENTE DE TRANSBORDAMENTO NA BACIA DO GUAÍBA. COTAS PODEM SUPERAR 4 METROS NAS PRÓXIMAS 72H. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 🌀 <span class="text-purple-300">ALERTA MARINHA DO BRASIL:</span> FORMAÇÃO DE CICLONE EXTRATROPICAL NA COSTA SUL. PREVISÃO DE RAJADAS SUPERIORES A 110 KM/H E RESSACA. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; ☀️ <span class="text-orange-300">INMET (NORTE):</span> SECA HISTÓRICA NO AMAZONAS - RIO NEGRO ATINGE MENOR MARCA EM 120 ANOS. NAVEGAÇÃO INTERROMPIDA. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 🌧️ <span class="text-blue-300">CLIMATEMPO (SUL):</span> BLOQUEIO ATMOSFÉRICO MANTÉM CHUVAS CONTÍNUAS SOBRE O VALE DO TAQUARI POR MAIS 5 DIAS.
+        </div>
+    </div>
+
+    <!-- Container para os Popups ao Vivo -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <main class="flex-1 overflow-y-auto lg:overflow-hidden p-3 flex flex-col lg:grid lg:grid-cols-12 lg:grid-rows-12 gap-4 lg:gap-3">
 
@@ -503,6 +578,76 @@
             });
 
             // ----------------------------------------------------
+            // GRÁFICO 3: Projeção Hidrológica (Bacias RS)
+            // ----------------------------------------------------
+            const ctxRiver = document.getElementById('riverChart').getContext('2d');
+            new Chart(ctxRiver, {
+                type: 'line',
+                data: {
+                    labels: ['Out/26', 'Nov/26', 'Dez/26 (Pico)', 'Jan/27'],
+                    datasets: [
+                        {
+                            label: 'Rio Taquari',
+                            data: [40, 95, 160, 110],
+                            borderColor: '#f59e0b', // Laranja
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 2
+                        },
+                        {
+                            label: 'Rio Jacuí',
+                            data: [50, 85, 140, 120],
+                            borderColor: '#a855f7', // Roxo
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 2
+                        },
+                        {
+                            label: 'Lago Guaíba',
+                            data: [60, 110, 185, 150],
+                            borderColor: '#ef4444', // Vermelho
+                            backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'Cota Inundação',
+                            data: [100, 100, 100, 100], // Linha reta de transbordamento
+                            borderColor: '#ffffff',
+                            borderWidth: 1,
+                            borderDash: [5, 5], // Linha tracejada
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { 
+                            display: true,
+                            position: 'top',
+                            labels: { color: '#94a3b8', font: {size: 9}, boxWidth: 10 }
+                        } 
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            max: 200, // Vai até 200% da cota
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { callback: function(value) { return value + '%'; } }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // ----------------------------------------------------
             // INTEGRATION: MÓDULO DE DADOS REAIS (API)
             // ----------------------------------------------------
             const btnOpen = document.getElementById('openLiveModalBtn');
@@ -679,6 +824,91 @@
                     Tone.Transport.stop();
                 }
             });
+
+            // ----------------------------------------------------
+            // MÓDULO DE NOTIFICAÇÕES AO VIVO (TOASTS)
+            // ----------------------------------------------------
+            const toastContainer = document.getElementById('toastContainer');
+            
+            // Banco de dados de alertas simulados para dar a sensação de tempo real
+            const liveAlerts = [
+                {
+                    type: 'severe',
+                    icon: 'fa-cloud-showers-water',
+                    source: 'INMET / DEFESA CIVIL',
+                    title: 'Chuva Extrema Detectada',
+                    text: 'Célula de tempestade estacionária sobre o Vale do Taquari. Acumulado de 80mm na última hora. Evacuação de encostas recomendada.',
+                    color: 'text-red-500'
+                },
+                {
+                    type: 'cyclone',
+                    icon: 'fa-hurricane',
+                    source: 'MARINHA DO BRASIL',
+                    title: 'Alerta de Ciclone',
+                    text: 'Queda brusca de pressão atmosférica (Ciclogênese Explosiva) ao largo de Florianópolis. Rajadas projetadas: 115 km/h.',
+                    color: 'text-purple-500'
+                },
+                {
+                    type: 'warning',
+                    icon: 'fa-water',
+                    source: 'SGB / CPRM (Monitoramento)',
+                    title: 'Elevação Súbita de Nível',
+                    text: 'Sensor ANA Rio dos Sinos (São Leopoldo) registra alta de 15cm na última hora. Solo 100% saturado.',
+                    color: 'text-orange-500'
+                },
+                {
+                    type: 'severe',
+                    icon: 'fa-triangle-exclamation',
+                    source: 'SISTEMA GEOS',
+                    title: 'Risco de Rompimento',
+                    text: 'Alerta hidrológico preventivo emitido para comportas da Região Metropolitana de Porto Alegre. Pressão hídrica máxima.',
+                    color: 'text-red-500'
+                }
+            ];
+
+            function createToast(alertData) {
+                const toast = document.createElement('div');
+                toast.className = `live-toast ${alertData.type}`;
+                
+                toast.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1 ${alertData.color} text-xl animate-pulse">
+                            <i class="fa-solid ${alertData.icon}"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-[9px] font-data text-slate-400 font-bold uppercase tracking-wider border-b border-slate-700/50 pb-1 mb-1">${alertData.source} • AGORA</div>
+                            <h4 class="font-tech text-white text-sm font-bold">${alertData.title}</h4>
+                            <p class="font-data text-slate-300 text-xs mt-1 leading-tight">${alertData.text}</p>
+                        </div>
+                        <button class="text-slate-500 hover:text-white" onclick="this.parentElement.parentElement.remove()">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    </div>
+                `;
+
+                toastContainer.appendChild(toast);
+
+                // Auto-remover após 8 segundos
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.classList.add('fade-out');
+                        setTimeout(() => toast.remove(), 500); // Aguarda animação de saída
+                    }
+                }, 8000);
+            }
+
+            // Gerar alertas aleatórios a cada 15 a 30 segundos
+            function scheduleNextAlert() {
+                const randomTime = Math.floor(Math.random() * (30000 - 15000 + 1)) + 15000;
+                setTimeout(() => {
+                    const randomAlert = liveAlerts[Math.floor(Math.random() * liveAlerts.length)];
+                    createToast(randomAlert);
+                    scheduleNextAlert(); // Agenda o próximo loop
+                }, randomTime);
+            }
+
+            // Iniciar o loop de alertas após 5 segundos de carregamento da página
+            setTimeout(scheduleNextAlert, 5000);
 
         });
     </script>
