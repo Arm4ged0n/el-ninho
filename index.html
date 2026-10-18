@@ -222,14 +222,14 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col overflow-hidden data-stream text-sm">
+<body class="min-h-screen w-screen flex flex-col data-stream text-sm bg-[#050505] pb-10">
 
     <!-- Copyright Tag Flutuante -->
     <div class="fixed bottom-4 right-4 lg:bottom-6 lg:right-6 text-[10px] text-slate-500/60 font-data z-[100] pointer-events-none select-none uppercase tracking-widest bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm border border-slate-700/30">
         &copy; 2026 Sandro Fagundes — Todos os direitos reservados
     </div>
 
-    <header class="bg-black/90 border-b border-blue-900/60 p-2 lg:p-3 flex justify-between items-center shrink-0 z-20">
+    <header class="bg-black/90 border-b border-blue-900/60 p-2 lg:p-3 flex justify-between items-center shrink-0 z-20 sticky top-0">
         <div class="flex items-center gap-4">
             <div class="relative w-10 h-10 flex items-center justify-center bg-blue-950 rounded-full border border-blue-500">
                 <i class="fa-solid fa-earth-americas text-blue-400 text-xl"></i>
@@ -262,7 +262,7 @@
     </header>
 
     <!-- Ticker de Plantão -->
-    <div class="ticker-bar shrink-0">
+    <div class="ticker-bar shrink-0 sticky top-[60px] lg:top-[70px] z-10">
         <div class="ticker-text">
             ⚠️ <span class="text-red-300">DEFESA CIVIL RS:</span> RISCO IMINENTE DE TRANSBORDAMENTO NA BACIA DO GUAÍBA. COTAS PODEM SUPERAR 4 METROS NAS PRÓXIMAS 72H. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 🌀 <span class="text-purple-300">ALERTA MARINHA DO BRASIL:</span> FORMAÇÃO DE CICLONE EXTRATROPICAL NA COSTA SUL. PREVISÃO DE RAJADAS SUPERIORES A 110 KM/H E RESSACA. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; ☀️ <span class="text-orange-300">INMET (NORTE):</span> SECA HISTÓRICA NO AMAZONAS - RIO NEGRO ATINGE MENOR MARCA EM 120 ANOS. NAVEGAÇÃO INTERROMPIDA. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 🌧️ <span class="text-blue-300">CLIMATEMPO (SUL):</span> BLOQUEIO ATMOSFÉRICO MANTÉM CHUVAS CONTÍNUAS SOBRE O VALE DO TAQUARI POR MAIS 5 DIAS.
         </div>
@@ -271,7 +271,7 @@
     <!-- Container para os Popups ao Vivo -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <main class="flex-1 overflow-y-auto p-3 lg:p-4 flex flex-col lg:grid lg:grid-cols-12 gap-4 pb-12">
+    <main class="flex-1 p-3 lg:p-4 flex flex-col lg:grid lg:grid-cols-12 gap-4">
 
         <!-- Linha de KPIs Superiores -->
         <div class="lg:col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:flex gap-3 shrink-0">
@@ -320,8 +320,8 @@
         <!-- Center Console: Live Satellite Radar -->
         <section class="lg:col-span-8 cyber-panel p-1 flex flex-col relative min-h-[450px] lg:min-h-[550px] shrink-0">
             <div class="absolute top-3 left-4 z-10 pointer-events-none">
-                <h2 class="font-tech text-lg text-white drop-shadow-md"><i class="fa-solid fa-satellite-dish text-blue-500 mr-2"></i>RADAR GLOBAL EM TEMPO REAL</h2>
-                <p class="font-data text-xs text-blue-300 drop-shadow-md bg-black/50 px-1 inline-block rounded">SISTEMA WINDY API | CAMADA: VENTO & CHUVA | BASE: ECMWF</p>
+                <h2 class="font-tech text-lg text-white drop-shadow-md bg-black/30 p-1 rounded"><i class="fa-solid fa-satellite-dish text-blue-500 mr-2"></i>RADAR GLOBAL EM TEMPO REAL</h2>
+                <p class="font-data text-xs text-blue-300 drop-shadow-md bg-black/60 px-1 mt-1 inline-block rounded">SISTEMA WINDY API | CAMADA: CHUVA E RAIOS | BASE: ECMWF</p>
             </div>
             
             <!-- Sonar Radar Widget (Inferior Esquerdo no Mapa) -->
@@ -346,16 +346,17 @@
                 </div>
             </div>
 
-            <div class="windy-container flex-1">
-                <!-- Integração Real da plataforma Windy focada no Brasil -->
+            <!-- Adicionado min-h-[400px] e mt-16 lg:mt-0 para consertar o esmagamento no iPhone Safari -->
+            <div class="windy-container flex-1 min-h-[400px] mt-16 lg:mt-0">
+                <!-- Integração Real da plataforma Windy focada no Brasil (OVERLAY=RAIN mantido) -->
                 <iframe width="100%" height="100%" 
-                        src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km%2Fh&zoom=4&overlay=wind&product=ecmwf&level=surface&lat=-15.0&lon=-50.0&detailLat=-30.0&detailLon=-51.0&marker=true" 
+                        src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km%2Fh&zoom=4&overlay=rain&product=ecmwf&level=surface&lat=-15.0&lon=-50.0&detailLat=-30.0&detailLon=-51.0&marker=true" 
                         frameborder="0"></iframe>
             </div>
         </section>
 
         <!-- Right Panel: NOAA Data & Charts -->
-        <section class="lg:col-span-4 cyber-panel p-3 flex flex-col gap-3 overflow-y-auto min-h-[500px] lg:min-h-[550px] shrink-0">
+        <section class="lg:col-span-4 cyber-panel p-3 flex flex-col gap-3 min-h-[500px] lg:min-h-[550px] shrink-0">
             <div class="border-b border-slate-700 pb-2 mb-2 flex justify-between items-center">
                 <h3 class="font-tech text-blue-400"><i class="fa-solid fa-chart-line mr-2"></i>SST ANOMALY INDEX</h3>
                 <span class="bg-blue-900/50 text-blue-300 font-data text-[10px] px-2 py-0.5 rounded border border-blue-700">NOAA DATABASE</span>
@@ -381,7 +382,7 @@
         <section class="lg:col-span-12 cyber-panel p-3 flex flex-col lg:flex-row gap-4 min-h-[450px] lg:min-h-[350px] shrink-0">
             
             <!-- Analysis Terminal -->
-            <div class="flex-1 bg-black/60 border border-slate-800 rounded p-3 font-data overflow-y-auto relative">
+            <div class="flex-1 bg-black/60 border border-slate-800 rounded p-3 font-data overflow-y-auto relative min-h-[250px]">
                 <div class="absolute top-0 right-0 bg-yellow-600/20 text-yellow-500 text-[10px] px-2 border-b border-l border-yellow-600/50">SISTEMA DE ALERTA NACIONAL (DEFESA CIVIL)</div>
                 <h4 class="text-sm text-slate-300 mb-3 border-b border-slate-700 pb-1">>> THREAT_MATRIX_BR_26_27</h4>
                 
@@ -418,7 +419,7 @@
             </div>
 
             <!-- River Levels Projection Chart -->
-            <div class="w-full lg:w-5/12 flex flex-col gap-2">
+            <div class="w-full lg:w-5/12 flex flex-col gap-2 min-h-[300px]">
                 <div class="bg-blue-900/20 border border-blue-500/30 p-2 rounded flex items-center justify-between">
                     <span class="font-tech text-xs text-blue-400"><i class="fa-solid fa-water mr-2"></i>PROJEÇÃO HIDROLÓGICA (BACIAS RS)</span>
                     <div class="flex items-center gap-2">
@@ -429,11 +430,11 @@
                     </div>
                 </div>
                 
-                <div class="flex-1 bg-black/40 border border-slate-700 rounded p-2 flex flex-col relative overflow-hidden">
+                <div class="flex-1 bg-black/40 border border-slate-700 rounded p-2 flex flex-col relative overflow-hidden min-h-[220px]">
                     <div class="absolute top-2 left-2 z-10 flex gap-2 font-data text-[9px]">
                         <span class="bg-slate-800 text-slate-300 px-1 border border-slate-600 rounded shadow">LINHA 100% = TRANSBORDAMENTO OFICIAL</span>
                     </div>
-                    <div class="h-full w-full min-h-[220px] relative mt-5">
+                    <div class="h-full w-full relative mt-5">
                         <canvas id="riverChart"></canvas>
                     </div>
                     <p class="font-data text-[9px] text-slate-400 mt-1 text-center">Modelo de Cascata: Rio Taquari (resposta rápida) desaguando no Jacuí, com acúmulo extremo no Delta do Guaíba.</p>
