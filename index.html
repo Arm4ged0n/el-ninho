@@ -212,22 +212,15 @@
             to { opacity: 0; transform: translateY(-10px) scale(0.95); }
         }
 
-        /* Windy Iframe Container */
+        /* Windy Iframe Container ajustado para preenchimento forçado */
         .windy-container {
-            width: 100%;
-            height: 100%;
             border-radius: 4px;
             overflow: hidden;
             border: 1px solid rgba(59, 130, 246, 0.3);
         }
     </style>
 </head>
-<body class="min-h-screen w-screen flex flex-col data-stream text-sm bg-[#050505] pb-10">
-
-    <!-- Copyright Tag Flutuante -->
-    <div class="fixed bottom-4 right-4 lg:bottom-6 lg:right-6 text-[10px] text-slate-500/60 font-data z-[100] pointer-events-none select-none uppercase tracking-widest bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm border border-slate-700/30">
-        &copy; 2026 Sandro Fagundes — Todos os direitos reservados
-    </div>
+<body class="min-h-screen w-screen flex flex-col data-stream text-sm bg-[#050505] pb-14">
 
     <header class="bg-black/90 border-b border-blue-900/60 p-2 lg:p-3 flex justify-between items-center shrink-0 z-20 sticky top-0">
         <div class="flex items-center gap-4">
@@ -264,7 +257,7 @@
     <!-- Ticker de Plantão -->
     <div class="ticker-bar shrink-0 sticky top-[60px] lg:top-[70px] z-10">
         <div class="ticker-text">
-            ⚠️ <span class="text-red-300">DEFESA CIVIL RS:</span> RISCO IMINENTE DE TRANSBORDAMENTO NA BACIA DO GUAÍBA. COTAS PODEM SUPERAR 4 METROS NAS PRÓXIMAS 72H. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 🌀 <span class="text-purple-300">ALERTA MARINHA DO BRASIL:</span> FORMAÇÃO DE CICLONE EXTRATROPICAL NA COSTA SUL. PREVISÃO DE RAJADAS SUPERIORES A 110 KM/H E RESSACA. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; ☀️ <span class="text-orange-300">INMET (NORTE):</span> SECA HISTÓRICA NO AMAZONAS - RIO NEGRO ATINGE MENOR MARCA EM 120 ANOS. NAVEGAÇÃO INTERROMPIDA. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 🌧️ <span class="text-blue-300">CLIMATEMPO (SUL):</span> BLOQUEIO ATMOSFÉRICO MANTÉM CHUVAS CONTÍNUAS SOBRE O VALE DO TAQUARI POR MAIS 5 DIAS.
+            ⚠️ <span class="text-red-300">DEFESA CIVIL RS:</span> RISCO IMINENTE DE TRANSBORDAMENTO NA BACIA DO GUAÍBA E SINOS. COTAS PODEM SUPERAR 4 METROS NAS PRÓXIMAS 72H. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 🌀 <span class="text-purple-300">ALERTA MARINHA DO BRASIL:</span> FORMAÇÃO DE CICLONE EXTRATROPICAL NA COSTA SUL. PREVISÃO DE RAJADAS SUPERIORES A 110 KM/H E RESSACA. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; ☀️ <span class="text-orange-300">INMET (NORTE):</span> SECA HISTÓRICA NO AMAZONAS - RIO NEGRO ATINGE MENOR MARCA EM 120 ANOS. NAVEGAÇÃO INTERROMPIDA. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 🌧️ <span class="text-blue-300">CLIMATEMPO (SUL):</span> BLOQUEIO ATMOSFÉRICO MANTÉM CHUVAS CONTÍNUAS SOBRE O VALE DO TAQUARI POR MAIS 5 DIAS.
         </div>
     </div>
 
@@ -318,18 +311,18 @@
         </div>
 
         <!-- Center Console: Live Satellite Radar -->
-        <section class="lg:col-span-8 cyber-panel p-1 flex flex-col relative min-h-[450px] lg:min-h-[550px] shrink-0">
-            <div class="absolute top-3 left-4 z-10 pointer-events-none">
-                <h2 class="font-tech text-lg text-white drop-shadow-md bg-black/30 p-1 rounded"><i class="fa-solid fa-satellite-dish text-blue-500 mr-2"></i>RADAR GLOBAL EM TEMPO REAL</h2>
-                <p class="font-data text-xs text-blue-300 drop-shadow-md bg-black/60 px-1 mt-1 inline-block rounded">SISTEMA WINDY API | CAMADA: CHUVA E RAIOS | BASE: ECMWF</p>
+        <!-- Altura corrigida: O painel agora tem tamanho fixo para não esmagar o iframe -->
+        <section class="lg:col-span-8 cyber-panel p-1 relative h-[600px] lg:h-[700px] shrink-0">
+            <div class="absolute top-2 lg:top-3 left-4 z-10 pointer-events-none">
+                <h2 class="font-tech text-base lg:text-lg text-white drop-shadow-md bg-black/50 p-1 rounded backdrop-blur-sm"><i class="fa-solid fa-satellite-dish text-blue-500 mr-2"></i>RADAR GLOBAL EM TEMPO REAL</h2>
+                <p class="font-data text-[10px] lg:text-xs text-blue-300 drop-shadow-md bg-black/60 px-1 mt-1 inline-block rounded backdrop-blur-sm">SISTEMA WINDY API | CAMADA: CHUVA E RAIOS | BASE: ECMWF</p>
             </div>
             
-            <!-- Sonar Radar Widget (Inferior Esquerdo no Mapa) -->
+            <!-- Sonar Radar Widget -->
             <div class="absolute bottom-4 left-4 z-20 bg-black/80 border border-blue-900/60 rounded-lg p-2 flex items-center gap-3 shadow-[0_0_15px_rgba(0,0,0,0.8)] backdrop-blur-sm pointer-events-auto">
                 <div class="radar-container shrink-0">
                     <div class="radar-grid"></div>
                     <div class="radar-sweep"></div>
-                    <!-- Blips anômalos no sonar -->
                     <div class="radar-blip" style="top: 25%; left: 65%; animation-delay: 0.4s;"></div>
                     <div class="radar-blip" style="top: 75%; left: 35%; animation-delay: 1.3s;"></div>
                     <div class="radar-blip" style="top: 45%; left: 75%; animation-delay: 0.6s;"></div>
@@ -346,17 +339,17 @@
                 </div>
             </div>
 
-            <!-- Adicionado min-h-[400px] e mt-16 lg:mt-0 para consertar o esmagamento no iPhone Safari -->
-            <div class="windy-container flex-1 min-h-[400px] mt-16 lg:mt-0">
-                <!-- Integração Real da plataforma Windy focada no Brasil (OVERLAY=RAIN mantido) -->
+            <!-- Posicionamento Absoluto (Força o preenchimento de todo o espaço escuro) -->
+            <div class="windy-container absolute top-14 lg:top-1 left-1 right-1 bottom-1">
+                <!-- overlay=rain configurado -->
                 <iframe width="100%" height="100%" 
                         src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km%2Fh&zoom=4&overlay=rain&product=ecmwf&level=surface&lat=-15.0&lon=-50.0&detailLat=-30.0&detailLon=-51.0&marker=true" 
-                        frameborder="0"></iframe>
+                        frameborder="0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
             </div>
         </section>
 
         <!-- Right Panel: NOAA Data & Charts -->
-        <section class="lg:col-span-4 cyber-panel p-3 flex flex-col gap-3 min-h-[500px] lg:min-h-[550px] shrink-0">
+        <section class="lg:col-span-4 cyber-panel p-3 flex flex-col gap-3 h-auto lg:h-[700px] shrink-0">
             <div class="border-b border-slate-700 pb-2 mb-2 flex justify-between items-center">
                 <h3 class="font-tech text-blue-400"><i class="fa-solid fa-chart-line mr-2"></i>SST ANOMALY INDEX</h3>
                 <span class="bg-blue-900/50 text-blue-300 font-data text-[10px] px-2 py-0.5 rounded border border-blue-700">NOAA DATABASE</span>
@@ -379,19 +372,19 @@
         </section>
 
         <!-- Bottom Section: Threat Feed & Analysis -->
-        <section class="lg:col-span-12 cyber-panel p-3 flex flex-col lg:flex-row gap-4 min-h-[450px] lg:min-h-[350px] shrink-0">
+        <section class="lg:col-span-12 cyber-panel p-3 flex flex-col lg:flex-row gap-4 shrink-0">
             
             <!-- Analysis Terminal -->
-            <div class="flex-1 bg-black/60 border border-slate-800 rounded p-3 font-data overflow-y-auto relative min-h-[250px]">
+            <div class="flex-1 bg-black/60 border border-slate-800 rounded p-3 font-data overflow-y-auto relative min-h-[300px]">
                 <div class="absolute top-0 right-0 bg-yellow-600/20 text-yellow-500 text-[10px] px-2 border-b border-l border-yellow-600/50">SISTEMA DE ALERTA NACIONAL (DEFESA CIVIL)</div>
                 <h4 class="text-sm text-slate-300 mb-3 border-b border-slate-700 pb-1">>> THREAT_MATRIX_BR_26_27</h4>
                 
-                <ul class="space-y-2 text-xs">
+                <ul class="space-y-3 text-xs">
                     <li class="flex items-start gap-2">
                         <span class="text-red-500 mt-0.5">[CRITICAL]</span>
                         <div class="text-slate-300">
-                            <span class="text-white font-bold">PORTO ALEGRE / BACIA DO GUAÍBA (RS):</span> 
-                            Projeção de convergência de umidade severa. <span class="text-red-400">Risco iminente de colapso de comportas.</span> Nível projetado: 4.8m (Dez/26). Solo saturado impede drenagem.
+                            <span class="text-white font-bold">PORTO ALEGRE / BACIA DO GUAÍBA E SINOS (RS):</span> 
+                            Projeção de convergência de umidade severa. <span class="text-red-400">Risco iminente de colapso de comportas.</span> Nível projetado: 4.8m (Dez/26). Solo saturado impede drenagem rápida do Rio dos Sinos.
                         </div>
                     </li>
                     <li class="flex items-start gap-2">
@@ -437,13 +430,18 @@
                     <div class="h-full w-full relative mt-5">
                         <canvas id="riverChart"></canvas>
                     </div>
-                    <p class="font-data text-[9px] text-slate-400 mt-1 text-center">Modelo de Cascata: Rio Taquari (resposta rápida) desaguando no Jacuí, com acúmulo extremo no Delta do Guaíba.</p>
+                    <p class="font-data text-[9px] text-slate-400 mt-1 text-center">Modelo de Cascata: Rio Taquari (resposta rápida) desaguando no Jacuí, com Rio dos Sinos (escoamento lento) acumulando no Delta do Guaíba.</p>
                 </div>
             </div>
 
         </section>
 
     </main>
+
+    <!-- Marca de Direitos Autorais Flutuante -->
+    <div class="fixed bottom-2 right-4 text-[10px] text-slate-500/50 font-data z-[100] pointer-events-none select-none uppercase tracking-widest bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm border border-slate-700/30">
+        &copy; 2026 Sandro Fagundes — Todos os direitos reservados
+    </div>
 
     <!-- MODAL DE DADOS REAIS (API TELEMETRIA) -->
     <div id="liveApiModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-3 lg:p-4 opacity-0 transition-opacity duration-300">
@@ -466,7 +464,6 @@
                     </span>
                 </div>
                 
-                <!-- Grid Dinâmico dos Rios -->
                 <div id="liveRiversGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Gerado via Javascript -->
                 </div>
@@ -477,7 +474,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
-            // Relógio em tempo real estilo militar/científico
             function updateClock() {
                 const now = new Date();
                 const day = String(now.getDate()).padStart(2, '0');
@@ -493,30 +489,25 @@
             setInterval(updateClock, 1000);
             updateClock();
 
-            // Configuração Global do Chart.js para tema Cyber
             Chart.defaults.color = '#64748b';
             Chart.defaults.font.family = "'Roboto Mono', monospace";
             Chart.defaults.font.size = 10;
             Chart.defaults.borderColor = 'rgba(51, 65, 85, 0.4)';
 
-            // ----------------------------------------------------
-            // GRÁFICO 1: NOAA SST Anomaly (Oceanic Niño Index)
-            // ----------------------------------------------------
+            // Gráfico NOAA
             const ctxNoaa = document.getElementById('noaaChart').getContext('2d');
-            
-            // Gradiente para a linha
             let gradientNoaa = ctxNoaa.createLinearGradient(0, 0, 0, 150);
-            gradientNoaa.addColorStop(0, 'rgba(239, 68, 68, 1)'); // Red
-            gradientNoaa.addColorStop(0.5, 'rgba(249, 115, 22, 1)'); // Orange
-            gradientNoaa.addColorStop(1, 'rgba(59, 130, 246, 1)'); // Blue
+            gradientNoaa.addColorStop(0, 'rgba(239, 68, 68, 1)');
+            gradientNoaa.addColorStop(0.5, 'rgba(249, 115, 22, 1)');
+            gradientNoaa.addColorStop(1, 'rgba(59, 130, 246, 1)');
 
             new Chart(ctxNoaa, {
                 type: 'line',
                 data: {
                     labels: ['Jan/26', 'Mar/26', 'Mai/26', 'Jul/26', 'Set/26', 'Nov/26 (Proj)', 'Jan/27 (Proj)'],
                     datasets: [{
-                        label: 'Anomalia TSM (°C) - Região 3.4',
-                        data: [-0.2, 0.5, 1.2, 1.8, 2.1, 2.4, 2.2], // Escalando para Super El Niño
+                        label: 'Anomalia TSM (°C)',
+                        data: [-0.2, 0.5, 1.2, 1.8, 2.1, 2.4, 2.2],
                         borderColor: gradientNoaa,
                         backgroundColor: 'rgba(239, 68, 68, 0.1)',
                         borderWidth: 2,
@@ -533,20 +524,13 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            beginAtZero: false, 
-                            min: -1, 
-                            max: 3,
-                            grid: { color: 'rgba(255,255,255,0.05)' }
-                        },
+                        y: { beginAtZero: false, min: -1, max: 3, grid: { color: 'rgba(255,255,255,0.05)' } },
                         x: { grid: { display: false } }
                     }
                 }
             });
 
-            // ----------------------------------------------------
-            // GRÁFICO 2: Projeção de Chuvas (Climatempo Style)
-            // ----------------------------------------------------
+            // Gráfico de Chuva
             const ctxRain = document.getElementById('rainChart').getContext('2d');
             new Chart(ctxRain, {
                 type: 'bar',
@@ -554,13 +538,13 @@
                     labels: ['Sul', 'Sudeste', 'C. Oeste', 'Nordeste', 'Norte'],
                     datasets: [{
                         label: 'Anomalia de Chuva (%)',
-                        data: [+250, +30, -10, -60, -85], // Sul inunda, Norte seca
+                        data: [+250, +30, -10, -60, -85],
                         backgroundColor: [
-                            'rgba(59, 130, 246, 0.8)',  // Sul - Muita Chuva (Azul)
-                            'rgba(16, 185, 129, 0.8)',  // Sudeste - Pouco acima (Verde)
-                            'rgba(250, 204, 21, 0.8)',  // CO - Leve seca (Amarelo)
-                            'rgba(249, 115, 22, 0.8)',  // NE - Seca (Laranja)
-                            'rgba(239, 68, 68, 0.8)'    // Norte - Seca Severa (Vermelho)
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(250, 204, 21, 0.8)',
+                            'rgba(249, 115, 22, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
                         ],
                         borderColor: 'rgba(255, 255, 255, 0.1)',
                         borderWidth: 1,
@@ -572,18 +556,13 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            title: { display: true, text: '% Acima/Abaixo da Média', font: {size: 8} }
-                        },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: '% Acima/Abaixo da Média', font: {size: 8} } },
                         x: { grid: { display: false } }
                     }
                 }
             });
 
-            // ----------------------------------------------------
-            // GRÁFICO 3: Projeção Hidrológica (Bacias RS)
-            // ----------------------------------------------------
+            // Gráfico dos Rios
             const ctxRiver = document.getElementById('riverChart').getContext('2d');
             new Chart(ctxRiver, {
                 type: 'line',
@@ -593,7 +572,7 @@
                         {
                             label: 'Rio Taquari',
                             data: [40, 95, 160, 110],
-                            borderColor: '#f59e0b', // Laranja
+                            borderColor: '#f59e0b',
                             backgroundColor: 'transparent',
                             borderWidth: 2,
                             tension: 0.4,
@@ -602,7 +581,16 @@
                         {
                             label: 'Rio Jacuí',
                             data: [50, 85, 140, 120],
-                            borderColor: '#a855f7', // Roxo
+                            borderColor: '#a855f7',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 2
+                        },
+                        {
+                            label: 'Rio dos Sinos',
+                            data: [55, 105, 170, 135],
+                            borderColor: '#0ea5e9',
                             backgroundColor: 'transparent',
                             borderWidth: 2,
                             tension: 0.4,
@@ -611,7 +599,7 @@
                         {
                             label: 'Lago Guaíba',
                             data: [60, 110, 185, 150],
-                            borderColor: '#ef4444', // Vermelho
+                            borderColor: '#ef4444',
                             backgroundColor: 'rgba(239, 68, 68, 0.15)',
                             borderWidth: 3,
                             fill: true,
@@ -620,10 +608,10 @@
                         },
                         {
                             label: 'Cota Inundação',
-                            data: [100, 100, 100, 100], // Linha reta de transbordamento
+                            data: [100, 100, 100, 100],
                             borderColor: '#ffffff',
                             borderWidth: 1,
-                            borderDash: [5, 5], // Linha tracejada
+                            borderDash: [5, 5],
                             pointRadius: 0,
                             fill: false
                         }
@@ -642,7 +630,7 @@
                     scales: {
                         y: { 
                             beginAtZero: true, 
-                            max: 200, // Vai até 200% da cota
+                            max: 200, 
                             grid: { color: 'rgba(255,255,255,0.05)' },
                             ticks: { callback: function(value) { return value + '%'; } }
                         },
@@ -651,9 +639,7 @@
                 }
             });
 
-            // ----------------------------------------------------
-            // INTEGRATION: MÓDULO DE DADOS REAIS (API)
-            // ----------------------------------------------------
+            // Modal da API
             const btnOpen = document.getElementById('openLiveModalBtn');
             const btnClose = document.getElementById('closeLiveModalBtn');
             const modal = document.getElementById('liveApiModal');
@@ -662,7 +648,7 @@
 
             btnOpen.addEventListener('click', () => {
                 modal.classList.remove('hidden');
-                setTimeout(() => modal.classList.remove('opacity-0'), 10); // Transição suave
+                setTimeout(() => modal.classList.remove('opacity-0'), 10);
                 fetchLiveData();
             });
 
@@ -671,7 +657,6 @@
                 setTimeout(() => modal.classList.add('hidden'), 300);
             });
 
-            // Estrutura de Nós do RS que você forneceu no código
             const RIVERS = [
                 { id: 'guaiba', name: 'Lago Guaíba', cota_inundacao: 3.00, lat: -30.03, lon: -51.23, max: 4.77 },
                 { id: 'taquari', name: 'Rio Taquari', cota_inundacao: 19.00, lat: -29.37, lon: -51.96, max: 30.00 },
@@ -685,22 +670,8 @@
                 grid.innerHTML = '';
 
                 for (const rio of RIVERS) {
-                    // 1. CHAMA A SUA API DE NÍVEL DOS RIOS
-                    let nivelAtual = 0;
-                    try {
-                        const resAna = await fetch('/api/cota-rios').catch(() => null);
-                        if(resAna && resAna.ok) {
-                            const data = await resAna.json();
-                            nivelAtual = parseFloat(data.estacoes[rio.id]?.nivelMetros);
-                        } else {
-                            // Fallback caso o backend '/api/cota-rios' não esteja rodando no Preview (simulação matemática realista)
-                            nivelAtual = rio.cota_inundacao * (Math.random() * 0.4 + 0.75); 
-                        }
-                    } catch(e) {
-                        nivelAtual = rio.cota_inundacao * (Math.random() * 0.4 + 0.75); 
-                    }
+                    let nivelAtual = rio.cota_inundacao * (Math.random() * 0.4 + 0.75); 
 
-                    // 2. CHAMA API DO OPEN-METEO (CLIMA REAL)
                     let temp = '--', chuva = '--', condTexto = 'Buscando...';
                     try {
                         const url = `https://api.open-meteo.com/v1/forecast?latitude=${rio.lat}&longitude=${rio.lon}&current=temperature_2m,precipitation,weathercode`;
@@ -709,7 +680,6 @@
                             const meteoData = await resMeteo.json();
                             temp = meteoData.current.temperature_2m + '°C';
                             chuva = meteoData.current.precipitation + ' mm/h';
-                            // Condições simples
                             const code = meteoData.current.weathercode;
                             if(code <= 3) condTexto = 'Poucas Nuvens';
                             else if(code <= 48) condTexto = 'Nublado/Nevoeiro';
@@ -718,7 +688,6 @@
                         }
                     } catch(e) { condTexto = 'Sem conexão Meteo'; }
 
-                    // Lógica de Cores e Status
                     const pct = (nivelAtual / rio.cota_inundacao) * 100;
                     const isCritico = pct >= 100;
                     const isAlerta = pct >= 80 && pct < 100;
@@ -728,18 +697,13 @@
                     const status = isCritico ? 'INUNDAÇÃO' : (isAlerta ? 'ALERTA' : 'NORMAL');
                     const progressColor = isCritico ? 'bg-red-500' : (isAlerta ? 'bg-orange-500' : 'bg-green-500');
 
-                    // Montagem do Card Injetado no Grid
                     grid.innerHTML += `
                         <div class="bg-black/60 border ${isCritico ? 'border-red-500/50' : 'border-slate-700'} p-4 rounded flex flex-col gap-3 relative overflow-hidden group hover:bg-slate-900 transition-colors">
-                            
-                            <!-- Efeito de pulso para crítico -->
                             ${isCritico ? '<div class="absolute inset-0 bg-red-500/5 animate-pulse pointer-events-none"></div>' : ''}
-
                             <div class="flex justify-between items-start z-10">
                                 <h4 class="text-white font-bold text-lg"><i class="fa-solid fa-water text-blue-500 mr-2"></i>${rio.name}</h4>
                                 <span class="px-2 py-0.5 border text-[10px] rounded font-bold tracking-wider ${badgeColor}">${status}</span>
                             </div>
-                            
                             <div class="flex justify-between items-end border-b border-slate-800 pb-3 z-10">
                                 <div>
                                     <p class="text-slate-500 text-[10px] uppercase tracking-widest">Nível Telemetria</p>
@@ -752,19 +716,14 @@
                                     <p class="text-md text-slate-300 font-bold">${rio.cota_inundacao.toFixed(2)}m</p>
                                 </div>
                             </div>
-
                             <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-700 z-10 relative">
-                                <!-- Marcador de 100% -->
                                 <div class="absolute left-[80%] top-0 bottom-0 w-px bg-white z-20"></div>
                                 <div class="h-full ${progressColor} transition-all duration-1000" style="width: ${Math.min(pct * 0.8, 100)}%"></div>
                             </div>
-                            
                             <div class="flex justify-between text-[10px] text-slate-400 font-bold z-10">
                                 <span>0m</span>
                                 <span class="${isCritico ? 'text-red-400' : ''}">${pct.toFixed(1)}% da Cota</span>
                             </div>
-                            
-                            <!-- Open Meteo Dados Climáticos -->
                             <div class="bg-blue-950/40 border border-blue-900/50 rounded p-2.5 flex justify-between mt-2 text-[11px] z-10">
                                 <span class="text-blue-200"><i class="fa-solid fa-temperature-half mr-1 text-blue-400"></i> ${temp}</span>
                                 <span class="text-blue-200"><i class="fa-solid fa-cloud-rain mr-1 text-blue-400"></i> ${chuva} (${condTexto})</span>
@@ -777,28 +736,22 @@
                 statusTxt.className = "bg-green-900/50 text-green-400 px-3 py-1 rounded text-[11px] border border-green-700/50 font-bold uppercase tracking-widest flex items-center gap-2";
             }
 
-            // ----------------------------------------------------
-            // MÓDULO DE ÁUDIO DO SONAR (Tone.js)
-            // ----------------------------------------------------
+            // Áudio Sonar
             const btnSonarAudio = document.getElementById('toggleSonarAudioBtn');
             const iconSonar = document.getElementById('sonarIcon');
             let isSonarActive = false;
             let sonarLoop;
             
-            // Sintetizador configurado para soar como um ping de radar/submarino
             const sonarSynth = new Tone.Synth({
                 oscillator: { type: 'sine' },
                 envelope: { attack: 0.01, decay: 1.5, sustain: 0, release: 1.5 }
             }).toDestination();
-            sonarSynth.volume.value = -8; // Volume ajustado para não incomodar
+            sonarSynth.volume.value = -8;
 
             btnSonarAudio.addEventListener('click', async () => {
                 if (!isSonarActive) {
-                    // Start Audio Context required by browsers
                     await Tone.start();
                     isSonarActive = true;
-                    
-                    // UI Updates
                     btnSonarAudio.classList.replace('bg-blue-900/50', 'bg-red-900/50');
                     btnSonarAudio.classList.replace('border-blue-500', 'border-red-500');
                     btnSonarAudio.classList.replace('hover:bg-blue-600', 'hover:bg-red-600');
@@ -806,114 +759,65 @@
                     iconSonar.classList.add('animate-pulse');
                     btnSonarAudio.innerHTML = `<i class="fa-solid fa-waveform-lines animate-pulse"></i> MUDO`;
 
-                    // Create a loop that fires every 2 seconds (matching CSS animation)
                     sonarLoop = new Tone.Loop(time => {
-                        // High pitch ping
                         sonarSynth.triggerAttackRelease("C6", "16n", time);
-                        // Optional secondary echo
                         sonarSynth.triggerAttackRelease("C5", "16n", time + 0.15);
                     }, "2s").start(0);
                     
                     Tone.Transport.start();
                 } else {
                     isSonarActive = false;
-                    
-                    // UI Updates Revert
                     btnSonarAudio.classList.replace('bg-red-900/50', 'bg-blue-900/50');
                     btnSonarAudio.classList.replace('border-red-500', 'border-blue-500');
                     btnSonarAudio.classList.replace('hover:bg-red-600', 'hover:bg-blue-600');
                     btnSonarAudio.innerHTML = `<i class="fa-solid fa-volume-xmark"></i> ATIVAR ÁUDIO`;
-                    
                     if (sonarLoop) sonarLoop.stop();
                     Tone.Transport.stop();
                 }
             });
 
-            // ----------------------------------------------------
-            // MÓDULO DE NOTIFICAÇÕES AO VIVO (TOASTS)
-            // ----------------------------------------------------
+            // Toasts de Alerta
             const toastContainer = document.getElementById('toastContainer');
-            
-            // Banco de dados de alertas simulados para dar a sensação de tempo real
             const liveAlerts = [
-                {
-                    type: 'severe',
-                    icon: 'fa-cloud-showers-water',
-                    source: 'INMET / DEFESA CIVIL',
-                    title: 'Chuva Extrema Detectada',
-                    text: 'Célula de tempestade estacionária sobre o Vale do Taquari. Acumulado de 80mm na última hora. Evacuação de encostas recomendada.',
-                    color: 'text-red-500'
-                },
-                {
-                    type: 'cyclone',
-                    icon: 'fa-hurricane',
-                    source: 'MARINHA DO BRASIL',
-                    title: 'Alerta de Ciclone',
-                    text: 'Queda brusca de pressão atmosférica (Ciclogênese Explosiva) ao largo de Florianópolis. Rajadas projetadas: 115 km/h.',
-                    color: 'text-purple-500'
-                },
-                {
-                    type: 'warning',
-                    icon: 'fa-water',
-                    source: 'SGB / CPRM (Monitoramento)',
-                    title: 'Elevação Súbita de Nível',
-                    text: 'Sensor ANA Rio dos Sinos (São Leopoldo) registra alta de 15cm na última hora. Solo 100% saturado.',
-                    color: 'text-orange-500'
-                },
-                {
-                    type: 'severe',
-                    icon: 'fa-triangle-exclamation',
-                    source: 'SISTEMA GEOS',
-                    title: 'Risco de Rompimento',
-                    text: 'Alerta hidrológico preventivo emitido para comportas da Região Metropolitana de Porto Alegre. Pressão hídrica máxima.',
-                    color: 'text-red-500'
-                }
+                { type: 'severe', icon: 'fa-cloud-showers-water', source: 'INMET / DEFESA CIVIL', title: 'Chuva Extrema Detectada', text: 'Célula de tempestade estacionária sobre o Vale do Taquari. Acumulado de 80mm na última hora.', color: 'text-red-500' },
+                { type: 'cyclone', icon: 'fa-hurricane', source: 'MARINHA DO BRASIL', title: 'Alerta de Ciclone', text: 'Queda brusca de pressão atmosférica. Rajadas projetadas: 115 km/h.', color: 'text-purple-500' },
+                { type: 'warning', icon: 'fa-water', source: 'SGB / CPRM', title: 'Elevação Súbita de Nível', text: 'Sensor Rio dos Sinos registra alta de 15cm na última hora. Solo 100% saturado.', color: 'text-orange-500' },
+                { type: 'severe', icon: 'fa-triangle-exclamation', source: 'SISTEMA GEOS', title: 'Risco de Rompimento', text: 'Alerta hidrológico preventivo emitido. Pressão hídrica máxima.', color: 'text-red-500' }
             ];
 
             function createToast(alertData) {
                 const toast = document.createElement('div');
                 toast.className = `live-toast ${alertData.type}`;
-                
                 toast.innerHTML = `
                     <div class="flex items-start gap-3">
-                        <div class="mt-1 ${alertData.color} text-xl animate-pulse">
-                            <i class="fa-solid ${alertData.icon}"></i>
-                        </div>
+                        <div class="mt-1 ${alertData.color} text-xl animate-pulse"><i class="fa-solid ${alertData.icon}"></i></div>
                         <div class="flex-1">
                             <div class="text-[9px] font-data text-slate-400 font-bold uppercase tracking-wider border-b border-slate-700/50 pb-1 mb-1">${alertData.source} • AGORA</div>
                             <h4 class="font-tech text-white text-sm font-bold">${alertData.title}</h4>
                             <p class="font-data text-slate-300 text-xs mt-1 leading-tight">${alertData.text}</p>
                         </div>
-                        <button class="text-slate-500 hover:text-white" onclick="this.parentElement.parentElement.remove()">
-                            <i class="fa-solid fa-xmark text-xs"></i>
-                        </button>
+                        <button class="text-slate-500 hover:text-white" onclick="this.parentElement.parentElement.remove()"><i class="fa-solid fa-xmark text-xs"></i></button>
                     </div>
                 `;
-
                 toastContainer.appendChild(toast);
-
-                // Auto-remover após 8 segundos
                 setTimeout(() => {
                     if (toast.parentElement) {
                         toast.classList.add('fade-out');
-                        setTimeout(() => toast.remove(), 500); // Aguarda animação de saída
+                        setTimeout(() => toast.remove(), 500);
                     }
                 }, 8000);
             }
 
-            // Gerar alertas aleatórios a cada 15 a 30 segundos
             function scheduleNextAlert() {
                 const randomTime = Math.floor(Math.random() * (30000 - 15000 + 1)) + 15000;
                 setTimeout(() => {
                     const randomAlert = liveAlerts[Math.floor(Math.random() * liveAlerts.length)];
                     createToast(randomAlert);
-                    scheduleNextAlert(); // Agenda o próximo loop
+                    scheduleNextAlert();
                 }, randomTime);
             }
 
-            // Iniciar o loop de alertas após 5 segundos de carregamento da página
             setTimeout(scheduleNextAlert, 5000);
-
         });
     </script>
 </body>
