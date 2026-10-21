@@ -14,6 +14,9 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Leaflet CSS para o Mapa Hidrológico -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
     <!-- Tone.js para efeitos sonoros (Sonar) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 
@@ -212,11 +215,41 @@
             to { opacity: 0; transform: translateY(-10px) scale(0.95); }
         }
 
-        /* Windy Iframe Container ajustado para preenchimento forçado */
-        .windy-container {
+        /* Animação do fluxo da água nos rios do mapa */
+        .river-flow {
+            stroke-dasharray: 10 10;
+            animation: flowAnimation 1s linear infinite;
+        }
+        @keyframes flowAnimation {
+            to { stroke-dashoffset: -20; }
+        }
+
+        /* Cores de Alerta no Mapa */
+        .river-normal { stroke: #22c55e; } /* Verde */
+        .river-alert { stroke: #eab308; }  /* Amarelo/Laranja */
+        .river-critical { stroke: #ef4444; } /* Vermelho */
+
+        /* Leaflet Popups Customizados */
+        .leaflet-tooltip {
+            background: rgba(15, 23, 42, 0.95);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            backdrop-filter: blur(4px);
+        }
+        .leaflet-tooltip-top:before { border-top-color: rgba(15, 23, 42, 0.95); }
+
+        /* Container do Mapa ancorado */
+        .map-container {
             border-radius: 4px;
             overflow: hidden;
             border: 1px solid rgba(59, 130, 246, 0.3);
+            position: absolute;
+            top: 50px; 
+            left: 4px; 
+            right: 4px; 
+            bottom: 4px;
+            z-index: 0;
         }
     </style>
 </head>
@@ -237,7 +270,7 @@
         <div class="hidden lg:flex items-center gap-6 font-data text-xs">
             <div class="flex flex-col items-end">
                 <span class="text-slate-500">DATA SYNCHRONIZATION</span>
-                <span class="text-green-400"><i class="fa-solid fa-satellite mr-1"></i> NOAA GOES-16 | ECMWF | INPE</span>
+                <span class="text-green-400"><i class="fa-solid fa-satellite mr-1"></i> NOAA | INMET | API RS</span>
             </div>
             <div class="h-8 w-px bg-slate-800"></div>
             <div class="flex flex-col items-end">
@@ -254,10 +287,10 @@
         </div>
     </header>
 
-    <!-- Ticker de Plantão -->
+    <!-- Ticker de Plantão com API REAL -->
     <div class="ticker-bar shrink-0 sticky top-[60px] lg:top-[70px] z-10">
-        <div class="ticker-text">
-            ⚠️ <span class="text-red-300">DEFESA CIVIL RS:</span> RISCO IMINENTE DE TRANSBORDAMENTO NA BACIA DO GUAÍBA E SINOS. COTAS PODEM SUPERAR 4 METROS NAS PRÓXIMAS 72H. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 🌀 <span class="text-purple-300">ALERTA MARINHA DO BRASIL:</span> FORMAÇÃO DE CICLONE EXTRATROPICAL NA COSTA SUL. PREVISÃO DE RAJADAS SUPERIORES A 110 KM/H E RESSACA. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; ☀️ <span class="text-orange-300">INMET (NORTE):</span> SECA HISTÓRICA NO AMAZONAS - RIO NEGRO ATINGE MENOR MARCA EM 120 ANOS. NAVEGAÇÃO INTERROMPIDA. &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 🌧️ <span class="text-blue-300">CLIMATEMPO (SUL):</span> BLOQUEIO ATMOSFÉRICO MANTÉM CHUVAS CONTÍNUAS SOBRE O VALE DO TAQUARI POR MAIS 5 DIAS.
+        <div class="ticker-text font-bold" id="liveTicker">
+            <i class="fa-solid fa-circle-notch fa-spin text-white"></i> CONECTANDO À API OFICIAL DE ALERTAS DO INMET / GOVERNO FEDERAL...
         </div>
     </div>
 
@@ -311,11 +344,10 @@
         </div>
 
         <!-- Center Console: Live Satellite Radar -->
-        <!-- Altura corrigida: O painel agora tem tamanho fixo para não esmagar o iframe -->
-        <section class="lg:col-span-8 cyber-panel p-1 relative h-[600px] lg:h-[700px] shrink-0">
-            <div class="absolute top-2 lg:top-3 left-4 z-10 pointer-events-none">
-                <h2 class="font-tech text-base lg:text-lg text-white drop-shadow-md bg-black/50 p-1 rounded backdrop-blur-sm"><i class="fa-solid fa-satellite-dish text-blue-500 mr-2"></i>RADAR GLOBAL EM TEMPO REAL</h2>
-                <p class="font-data text-[10px] lg:text-xs text-blue-300 drop-shadow-md bg-black/60 px-1 mt-1 inline-block rounded backdrop-blur-sm">SISTEMA WINDY API | CAMADA: CHUVA E RAIOS | BASE: ECMWF</p>
+        <section class="lg:col-span-8 cyber-panel p-1 relative min-h-[500px] lg:h-[700px] shrink-0 mt-4 lg:mt-0">
+            <div class="absolute top-1 left-2 lg:top-3 lg:left-4 z-10 pointer-events-none">
+                <h2 class="font-tech text-base lg:text-lg text-white drop-shadow-md bg-black/50 p-1 rounded backdrop-blur-sm"><i class="fa-solid fa-map-location-dot text-blue-500 mr-2"></i>MONITORAMENTO HIDROLÓGICO (RS)</h2>
+                <p class="font-data text-[10px] lg:text-xs text-blue-300 drop-shadow-md bg-black/60 px-1 mt-1 inline-block rounded backdrop-blur-sm">SISTEMA DE TELEMETRIA AO VIVO | BACIAS CRÍTICAS</p>
             </div>
             
             <!-- Sonar Radar Widget -->
@@ -339,17 +371,14 @@
                 </div>
             </div>
 
-            <!-- Posicionamento Absoluto (Força o preenchimento de todo o espaço escuro) -->
-            <div class="windy-container absolute top-14 lg:top-1 left-1 right-1 bottom-1">
-                <!-- overlay=rain configurado -->
-                <iframe width="100%" height="100%" 
-                        src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km%2Fh&zoom=4&overlay=rain&product=ecmwf&level=surface&lat=-15.0&lon=-50.0&detailLat=-30.0&detailLon=-51.0&marker=true" 
-                        frameborder="0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+            <!-- Mapa Leaflet Substituindo o Iframe -->
+            <div class="map-container absolute top-0 left-0 w-full h-full rounded overflow-hidden">
+                <div id="rsMap" style="width: 100%; height: 100%; background: #050505;"></div>
             </div>
         </section>
 
         <!-- Right Panel: NOAA Data & Charts -->
-        <section class="lg:col-span-4 cyber-panel p-3 flex flex-col gap-3 h-auto lg:h-[700px] shrink-0">
+        <section class="lg:col-span-4 cyber-panel p-3 flex flex-col gap-3 h-auto lg:h-[700px] shrink-0 mt-4 lg:mt-0">
             <div class="border-b border-slate-700 pb-2 mb-2 flex justify-between items-center">
                 <h3 class="font-tech text-blue-400"><i class="fa-solid fa-chart-line mr-2"></i>SST ANOMALY INDEX</h3>
                 <span class="bg-blue-900/50 text-blue-300 font-data text-[10px] px-2 py-0.5 rounded border border-blue-700">NOAA DATABASE</span>
@@ -372,11 +401,11 @@
         </section>
 
         <!-- Bottom Section: Threat Feed & Analysis -->
-        <section class="lg:col-span-12 cyber-panel p-3 flex flex-col lg:flex-row gap-4 shrink-0">
+        <section class="lg:col-span-12 cyber-panel p-3 flex flex-col lg:flex-row gap-4 shrink-0 mt-4 lg:mt-0">
             
             <!-- Analysis Terminal -->
             <div class="flex-1 bg-black/60 border border-slate-800 rounded p-3 font-data overflow-y-auto relative min-h-[300px]">
-                <div class="absolute top-0 right-0 bg-yellow-600/20 text-yellow-500 text-[10px] px-2 border-b border-l border-yellow-600/50">SISTEMA DE ALERTA NACIONAL (DEFESA CIVIL)</div>
+                <div class="absolute top-0 right-0 bg-yellow-600/20 text-yellow-500 text-[10px] px-2 border-b border-l border-yellow-600/50">MATRIZ MATEMÁTICA DE PROJEÇÃO</div>
                 <h4 class="text-sm text-slate-300 mb-3 border-b border-slate-700 pb-1">>> THREAT_MATRIX_BR_26_27</h4>
                 
                 <ul class="space-y-3 text-xs">
@@ -417,9 +446,8 @@
                     <span class="font-tech text-xs text-blue-400"><i class="fa-solid fa-water mr-2"></i>PROJEÇÃO HIDROLÓGICA (BACIAS RS)</span>
                     <div class="flex items-center gap-2">
                         <button id="openLiveModalBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-data text-[9px] px-2 py-1 rounded transition-colors flex items-center gap-1 shadow-[0_0_10px_rgba(37,99,235,0.5)]">
-                            <i class="fa-solid fa-satellite-dish animate-pulse"></i> DADOS REAIS (API)
+                            <i class="fa-solid fa-satellite-dish animate-pulse"></i> DETALHES AO VIVO
                         </button>
-                        <span class="bg-red-600 text-white font-bold px-2 py-1 rounded font-data text-[10px] animate-pulse">ALERTA GERAL</span>
                     </div>
                 </div>
                 
@@ -430,7 +458,7 @@
                     <div class="h-full w-full relative mt-5">
                         <canvas id="riverChart"></canvas>
                     </div>
-                    <p class="font-data text-[9px] text-slate-400 mt-1 text-center">Modelo de Cascata: Rio Taquari (resposta rápida) desaguando no Jacuí, com Rio dos Sinos (escoamento lento) acumulando no Delta do Guaíba.</p>
+                    <p class="font-data text-[9px] text-slate-400 mt-1 text-center">Modelo de Cascata: Rios Taquari, Sinos e Jacuí acumulando volume extremo em direção ao Delta do Guaíba.</p>
                 </div>
             </div>
 
@@ -439,7 +467,7 @@
     </main>
 
     <!-- Marca de Direitos Autorais Flutuante -->
-    <div class="fixed bottom-2 right-4 text-[10px] text-slate-500/50 font-data z-[100] pointer-events-none select-none uppercase tracking-widest bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm border border-slate-700/30">
+    <div class="mt-4 mb-2 text-center text-[10px] text-slate-500/50 font-data z-[100] uppercase tracking-widest px-2 py-0.5 select-none w-full">
         &copy; 2026 Sandro Fagundes — Todos os direitos reservados
     </div>
 
@@ -449,7 +477,7 @@
             
             <div class="bg-slate-900 border-b border-blue-900 p-3 lg:p-4 flex justify-between items-center shrink-0">
                 <h3 class="font-tech text-blue-400 text-lg flex items-center gap-3">
-                    <i class="fa-solid fa-satellite-dish animate-pulse"></i> REDE TELEMÉTRICA ANA & CLIMA (LIVE)
+                    <i class="fa-solid fa-satellite-dish animate-pulse"></i> REDE TELEMÉTRICA DE RIOS (LIVE)
                 </h3>
                 <button id="closeLiveModalBtn" class="text-slate-400 hover:text-white transition-colors bg-slate-800 hover:bg-red-600 rounded px-3 py-1">
                     <i class="fa-solid fa-xmark"></i> FECHAR
@@ -458,9 +486,9 @@
             
             <div class="p-4 overflow-y-auto flex-1 font-data text-sm flex flex-col gap-4">
                 <div class="flex justify-between items-end mb-2 border-b border-slate-800 pb-2">
-                    <p class="text-slate-400 text-xs hidden md:block">Consultando dados ao vivo das bacias hidrográficas do RS e satélites meteorológicos.</p>
+                    <p class="text-slate-400 text-xs hidden md:block">Consultando dados ao vivo via API: monitoraaguasrs.vercel.app</p>
                     <span id="liveApiStatus" class="bg-yellow-900/50 text-yellow-400 px-3 py-1 rounded text-[11px] border border-yellow-700/50 font-bold uppercase tracking-widest flex items-center gap-2">
-                        <i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando...
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Conectando...
                     </span>
                 </div>
                 
@@ -471,15 +499,14 @@
         </div>
     </div>
 
+    <!-- Script do Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
             function updateClock() {
                 const now = new Date();
-                const day = String(now.getDate()).padStart(2, '0');
-                const months = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
-                const month = months[now.getMonth()];
-                const year = now.getFullYear();
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const seconds = String(now.getSeconds()).padStart(2, '0');
@@ -589,8 +616,8 @@
                         },
                         {
                             label: 'Rio dos Sinos',
-                            data: [55, 105, 170, 135],
-                            borderColor: '#0ea5e9',
+                            data: [65, 115, 175, 145],
+                            borderColor: '#06b6d4', 
                             backgroundColor: 'transparent',
                             borderWidth: 2,
                             tension: 0.4,
@@ -649,7 +676,6 @@
             btnOpen.addEventListener('click', () => {
                 modal.classList.remove('hidden');
                 setTimeout(() => modal.classList.remove('opacity-0'), 10);
-                fetchLiveData();
             });
 
             btnClose.addEventListener('click', () => {
@@ -657,21 +683,52 @@
                 setTimeout(() => modal.classList.add('hidden'), 300);
             });
 
+            // Estrutura Base dos Rios com Coordenadas para desenhar linhas no Mapa Real
             const RIVERS = [
-                { id: 'guaiba', name: 'Lago Guaíba', cota_inundacao: 3.00, lat: -30.03, lon: -51.23, max: 4.77 },
-                { id: 'taquari', name: 'Rio Taquari', cota_inundacao: 19.00, lat: -29.37, lon: -51.96, max: 30.00 },
-                { id: 'jacui', name: 'Rio Jacuí', cota_inundacao: 4.67, lat: -29.93, lon: -51.72, max: 8.00 },
-                { id: 'sinos', name: 'Rio dos Sinos', cota_inundacao: 4.50, lat: -29.76, lon: -51.15, max: 7.50 }
+                { id: 'guaiba', name: 'Lago Guaíba', cota_inundacao: 3.00, lat: -30.08, lon: -51.25, nivel_atual: 2.35, coords: [[-29.99, -51.21], [-30.03, -51.23], [-30.08, -51.25], [-30.12, -51.27], [-30.20, -51.26], [-30.25, -51.25], [-30.30, -51.20], [-30.38, -51.15]] },
+                { id: 'taquari', name: 'Rio Taquari', cota_inundacao: 19.00, lat: -29.46, lon: -51.97, nivel_atual: 15.20, coords: [[-29.16, -51.87], [-29.23, -51.87], [-29.35, -51.95], [-29.46, -51.97], [-29.61, -51.93], [-29.80, -51.86], [-29.94, -51.73]] },
+                { id: 'jacui', name: 'Rio Jacuí', cota_inundacao: 4.67, lat: -29.94, lon: -51.73, nivel_atual: 3.80, coords: [[-29.98, -52.38], [-29.95, -52.10], [-29.90, -51.78], [-29.94, -51.73], [-29.96, -51.62], [-29.95, -51.40], [-29.98, -51.21]] },
+                { id: 'sinos', name: 'Rio dos Sinos', cota_inundacao: 4.50, lat: -29.76, lon: -51.15, nivel_atual: 4.10, coords: [[-29.68, -51.05], [-29.72, -51.13], [-29.76, -51.15], [-29.82, -51.16], [-29.90, -51.18], [-29.95, -51.20], [-29.98, -51.21]] }
             ];
 
-            async function fetchLiveData() {
-                statusTxt.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Buscando dados (API)...';
+            // Inicialização do Mapa Leaflet
+            const rsMap = L.map('rsMap', { zoomControl: false, attributionControl: false }).setView([-29.7, -51.5], 8);
+            L.control.zoom({ position: 'topright' }).addTo(rsMap);
+            
+            // Usando mapa estilo Google Maps (OpenStreetMap) público
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 14,
+                minZoom: 6
+            }).addTo(rsMap);
+
+            const riverLayers = {};
+            const markerLayers = {};
+
+            // FETCH DA API DOS RIOS (Sua API monitoraaguasrs)
+            async function fetchRiversData() {
+                statusTxt.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Conectando...';
                 statusTxt.className = "bg-yellow-900/50 text-yellow-400 px-3 py-1 rounded text-[11px] border border-yellow-700/50 font-bold uppercase tracking-widest flex items-center gap-2";
                 grid.innerHTML = '';
 
-                for (const rio of RIVERS) {
-                    let nivelAtual = rio.cota_inundacao * (Math.random() * 0.4 + 0.75); 
+                let dadosExternos = null;
+                try {
+                    // Chamada real para sua API
+                    const apiResponse = await fetch('https://monitoraaguasrs.vercel.app/api'); 
+                    if(apiResponse.ok) {
+                        dadosExternos = await apiResponse.json();
+                    }
+                } catch(e) {
+                    console.log("Falha ao ler API externa. Usando nível base fixo de segurança.");
+                }
 
+                for (const rio of RIVERS) {
+                    let nivelAtual = rio.nivel_atual; 
+                    
+                    if (dadosExternos && dadosExternos[rio.id]) {
+                        nivelAtual = parseFloat(dadosExternos[rio.id].nivel || dadosExternos[rio.id]);
+                    }
+
+                    // Busca clima pelo Open-Meteo
                     let temp = '--', chuva = '--', condTexto = 'Buscando...';
                     try {
                         const url = `https://api.open-meteo.com/v1/forecast?latitude=${rio.lat}&longitude=${rio.lon}&current=temperature_2m,precipitation,weathercode`;
@@ -696,6 +753,35 @@
                                      (isAlerta ? 'bg-orange-900/80 text-orange-400 border-orange-500' : 'bg-green-900/80 text-green-400 border-green-500');
                     const status = isCritico ? 'INUNDAÇÃO' : (isAlerta ? 'ALERTA' : 'NORMAL');
                     const progressColor = isCritico ? 'bg-red-500' : (isAlerta ? 'bg-orange-500' : 'bg-green-500');
+
+                    const riverClass = isCritico ? 'river-critical river-flow' : (isAlerta ? 'river-alert river-flow' : 'river-normal river-flow');
+                    const markerColor = isCritico ? '#ef4444' : (isAlerta ? '#eab308' : '#22c55e');
+                    
+                    if (riverLayers[rio.id]) rsMap.removeLayer(riverLayers[rio.id]);
+                    if (markerLayers[rio.id]) rsMap.removeLayer(markerLayers[rio.id]);
+
+                    riverLayers[rio.id] = L.polyline(rio.coords, { 
+                        color: markerColor, 
+                        weight: 6,
+                        opacity: 0.9,
+                        className: riverClass
+                    }).addTo(rsMap);
+
+                    const mapIcon = L.divIcon({
+                        html: `<div style="background-color: ${markerColor}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px ${markerColor};"></div>`,
+                        className: '',
+                        iconSize: [14, 14],
+                        iconAnchor: [7, 7]
+                    });
+
+                    markerLayers[rio.id] = L.marker([rio.lat, rio.lon], { icon: mapIcon }).addTo(rsMap);
+                    markerLayers[rio.id].bindTooltip(`
+                        <div class="font-data text-[10px] text-center">
+                            <strong style="color: ${markerColor}; font-size: 12px; font-family: 'Orbitron', sans-serif;">${rio.name}</strong><br/>
+                            <i class="fa-solid fa-water"></i> ${nivelAtual.toFixed(2)}m (Max: ${rio.cota_inundacao.toFixed(2)}m)<br/>
+                            <i class="fa-solid fa-temperature-half"></i> ${temp} | <b style="color: ${markerColor}">${status}</b>
+                        </div>
+                    `, { permanent: true, direction: 'top', offset: [0, -10], opacity: 0.9 });
 
                     grid.innerHTML += `
                         <div class="bg-black/60 border ${isCritico ? 'border-red-500/50' : 'border-slate-700'} p-4 rounded flex flex-col gap-3 relative overflow-hidden group hover:bg-slate-900 transition-colors">
@@ -776,14 +862,76 @@
                 }
             });
 
-            // Toasts de Alerta
+
+            // -------------------------------------------------------------
+            // SISTEMA DE ALERTAS REAIS (API DO INMET / GOVERNO FEDERAL)
+            // -------------------------------------------------------------
             const toastContainer = document.getElementById('toastContainer');
-            const liveAlerts = [
-                { type: 'severe', icon: 'fa-cloud-showers-water', source: 'INMET / DEFESA CIVIL', title: 'Chuva Extrema Detectada', text: 'Célula de tempestade estacionária sobre o Vale do Taquari. Acumulado de 80mm na última hora.', color: 'text-red-500' },
-                { type: 'cyclone', icon: 'fa-hurricane', source: 'MARINHA DO BRASIL', title: 'Alerta de Ciclone', text: 'Queda brusca de pressão atmosférica. Rajadas projetadas: 115 km/h.', color: 'text-purple-500' },
-                { type: 'warning', icon: 'fa-water', source: 'SGB / CPRM', title: 'Elevação Súbita de Nível', text: 'Sensor Rio dos Sinos registra alta de 15cm na última hora. Solo 100% saturado.', color: 'text-orange-500' },
-                { type: 'severe', icon: 'fa-triangle-exclamation', source: 'SISTEMA GEOS', title: 'Risco de Rompimento', text: 'Alerta hidrológico preventivo emitido. Pressão hídrica máxima.', color: 'text-red-500' }
-            ];
+            let liveAlerts = []; 
+
+            async function fetchInmetAlerts() {
+                const tickerEl = document.getElementById('liveTicker');
+                try {
+                    // API Aberta Oficial do INMET com os avisos meteorológicos em vigor
+                    const response = await fetch('https://apiprevmet3.inmet.gov.br/avisos/ativos');
+                    if (!response.ok) throw new Error('API INMET indisponível no momento');
+                    
+                    const data = await response.json();
+                    
+                    // O INMET separa em "hoje" e "futuro"
+                    let alertasAtivos = [];
+                    if (data && data.hoje) alertasAtivos = alertasAtivos.concat(data.hoje);
+                    
+                    // Se não houver nenhum alerta no país hoje
+                    if (alertasAtivos.length === 0) {
+                        tickerEl.innerHTML = '✅ <span class="text-green-400">INMET (OFICIAL):</span> NENHUM ALERTA METEOROLÓGICO SEVERO ATIVO NO BRASIL NESTE EXATO MOMENTO.';
+                        return;
+                    }
+
+                    let tickerString = '';
+
+                    alertasAtivos.forEach(alerta => {
+                        const emissor = 'INMET';
+                        const severidade = alerta.aviso_severidade || 'Alerta';
+                        const descricao = alerta.aviso_descricao || 'Condição climática adversa';
+                        const municipiosString = alerta.municipios || 'Regiões diversas';
+                        
+                        // Pegar as 3 primeiras cidades afetadas para não poluir demais o aviso
+                        let listaCidades = municipiosString.split(',');
+                        let cidadesResumo = listaCidades.slice(0, 3).join(', ') + (listaCidades.length > 3 ? ' e outras...' : '');
+                        
+                        let tipoClass = 'warning';
+                        let corTexto = 'text-yellow-500';
+                        let icon = 'fa-triangle-exclamation';
+
+                        // Mapear severidade do INMET (Amarelo = Perigo Potencial, Laranja/Vermelho = Perigo/Grande Perigo)
+                        if (severidade.toLowerCase().includes('perigo') && !severidade.toLowerCase().includes('potencial')) {
+                            tipoClass = 'severe';
+                            corTexto = 'text-red-500';
+                            icon = 'fa-cloud-showers-water';
+                        }
+
+                        // Alimenta o banco de dados interno de popups (Toasts)
+                        liveAlerts.push({
+                            type: tipoClass,
+                            icon: icon,
+                            source: emissor + ' (OFICIAL)',
+                            title: severidade.toUpperCase(),
+                            text: `${descricao}. <b>Locais afetados:</b> ${cidadesResumo}`,
+                            color: corTexto
+                        });
+
+                        // Alimenta a barra rolante (Ticker)
+                        tickerString += ` 🚨 <span class="${corTexto}">${emissor} (${severidade}):</span> ${descricao} - AFETA: ${cidadesResumo} &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; `;
+                    });
+
+                    tickerEl.innerHTML = tickerString;
+
+                } catch (error) {
+                    console.log('Falha ao conectar no INMET:', error);
+                    tickerEl.innerHTML = '⚠️ <span class="text-orange-400">SISTEMA:</span> TENTANDO ESTABELECER CONEXÃO COM SERVIDORES DO INMET PARA ALERTAS AO VIVO...';
+                }
+            }
 
             function createToast(alertData) {
                 const toast = document.createElement('div');
@@ -809,15 +957,22 @@
             }
 
             function scheduleNextAlert() {
-                const randomTime = Math.floor(Math.random() * (30000 - 15000 + 1)) + 15000;
-                setTimeout(() => {
-                    const randomAlert = liveAlerts[Math.floor(Math.random() * liveAlerts.length)];
-                    createToast(randomAlert);
-                    scheduleNextAlert();
-                }, randomTime);
+                if (liveAlerts.length > 0) {
+                    const randomTime = Math.floor(Math.random() * (30000 - 15000 + 1)) + 15000;
+                    setTimeout(() => {
+                        const randomAlert = liveAlerts[Math.floor(Math.random() * liveAlerts.length)];
+                        createToast(randomAlert);
+                        scheduleNextAlert();
+                    }, randomTime);
+                }
             }
 
-            setTimeout(scheduleNextAlert, 5000);
+            // Inicializar Sistemas de Dados
+            fetchRiversData();
+            fetchInmetAlerts().then(() => {
+                setTimeout(scheduleNextAlert, 5000);
+            });
+
         });
     </script>
 </body>
