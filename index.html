@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 
     <!-- Tone.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
@@ -76,7 +76,7 @@
 
         .map-container {
             width: 100%;
-            min-height: 500px; /* Garante tamanho no mobile */
+            min-height: 500px;
             height: 100%;
             border-radius: 4px;
             overflow: hidden;
@@ -85,8 +85,11 @@
         }
         #rsMap { position: absolute; inset: 0; width: 100%; height: 100%; background: #050505; z-index: 1; }
 
-        /* Filtro CSS para transformar o OpenStreetMap em Mapa Escuro/Noturno */
-        .leaflet-layer {
+        /* Filtro CSS Noturno para o Mapa */
+        .leaflet-layer,
+        .leaflet-control-zoom-in,
+        .leaflet-control-zoom-out,
+        .leaflet-control-attribution {
             filter: brightness(0.25) invert(1) contrast(1.3) hue-rotate(180deg);
         }
 
@@ -300,12 +303,12 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             // ==========================================
-            // 1. DADOS DOS RIOS (Com coordenadas detalhadas para o desenho real)
+            // 1. DADOS DOS RIOS (Posicionamento distanciado para não encavalar)
             // ==========================================
             const RIVERS = [
                 { 
-                    id: 'taquari', name: 'Rio Taquari', cota_inundacao: 19.00, lat: -29.05, lon: -51.87, // Ponto da Etiqueta mais ao Norte
-                    nivelAtual: 12.70, status: 'ESTIAGEM', cor: '#ef4444', // Plano B de segurança reflete o seu print
+                    id: 'taquari', name: 'Rio Taquari', cota_inundacao: 19.00, lat: -28.98, lon: -51.86, // Bem ao Norte
+                    nivelAtual: 12.70, status: 'ESTIAGEM', cor: '#ef4444', 
                     coords: [
                         [-28.84,-50.05], [-28.90,-50.20], [-28.98,-50.45], [-29.02,-50.91], 
                         [-29.15,-51.87], [-29.28,-51.98], [-29.45,-51.96], [-29.61,-51.93], 
@@ -313,7 +316,7 @@
                     ]
                 },
                 { 
-                    id: 'jacui', name: 'Rio Jacuí', cota_inundacao: 4.67, lat: -29.75, lon: -52.20, // Etiqueta mais a Oeste
+                    id: 'jacui', name: 'Rio Jacuí', cota_inundacao: 4.67, lat: -29.60, lon: -52.60, // Bem a Oeste
                     nivelAtual: 2.29, status: 'NORMAL', cor: '#22c55e',
                     coords: [
                         [-28.27,-52.40], [-28.40,-52.70], [-28.50,-53.00], [-28.80,-53.15], 
@@ -322,7 +325,7 @@
                     ]
                 },
                 { 
-                    id: 'sinos', name: 'Rio dos Sinos', cota_inundacao: 4.50, lat: -29.70, lon: -50.90, // Etiqueta mais a Leste
+                    id: 'sinos', name: 'Rio dos Sinos', cota_inundacao: 4.50, lat: -29.72, lon: -50.90, // Bem a Leste
                     nivelAtual: 1.10, status: 'NORMAL', cor: '#22c55e',
                     coords: [
                         [-29.77,-50.29], [-29.75,-50.40], [-29.70,-50.50], [-29.65,-50.78], 
@@ -331,7 +334,7 @@
                     ]
                 },
                 { 
-                    id: 'guaiba', name: 'Lago Guaíba', cota_inundacao: 3.00, lat: -30.30, lon: -51.25, // Etiqueta bem ao Sul
+                    id: 'guaiba', name: 'Lago Guaíba', cota_inundacao: 3.00, lat: -30.35, lon: -51.18, // Bem ao Sul
                     nivelAtual: 0.85, status: 'NORMAL', cor: '#22c55e',
                     coords: [
                         [-29.99,-51.21], [-30.03,-51.23], [-30.08,-51.25], [-30.15,-51.24], 
@@ -342,24 +345,21 @@
             ];
 
             // ==========================================
-            // 2. MAPA LEAFLET (Iniciado e Desenhado Imediatamente)
+            // 2. MAPA LEAFLET (Desenhado Imediatamente)
             // ==========================================
             const rsMap = L.map('rsMap', { zoomControl: false }).setView([-29.6, -51.5], 7);
             L.control.zoom({ position: 'topright' }).addTo(rsMap);
             
-            // OpenStreetMap Base (o CSS transforma em noturno)
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { 
                 maxZoom: 14, attribution: '&copy; OpenStreetMap'
             }).addTo(rsMap);
             
-            // Corrige o tamanho da tela do celular forçando o recálculo
+            // Força o mapa a recalcular o tamanho na tela do celular para evitar erros de renderização
             setTimeout(() => { rsMap.invalidateSize(); }, 500);
 
             let riverLayers = [];
 
-            // Função que desenha (ou redesenha) os rios na tela
             async function drawRiversMap() {
-                // Remove linhas velhas para não sobrepor ao atualizar
                 riverLayers.forEach(layer => rsMap.removeLayer(layer));
                 riverLayers = [];
 
@@ -372,18 +372,15 @@
 
                     const markerColor = rio.cor;
 
-                    // Camadas Visuais do Rio (Água correndo)
                     const p1 = L.polyline(rio.coords, { color: markerColor, weight: 8, className: `river-base` }).addTo(rsMap);
                     const p2 = L.polyline(rio.coords, { color: '#3aa0ff', weight: 4, className: 'river-water' }).addTo(rsMap);
                     const p3 = L.polyline(rio.coords, { color: '#ffffff', weight: 2, className: 'river-flow' }).addTo(rsMap);
 
-                    // Ícone redondinho ancorado
                     const mapIcon = L.divIcon({
                         html: `<div style="background-color: ${markerColor}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 12px ${markerColor};"></div>`,
                         className: '', iconSize: [14, 14], iconAnchor: [7, 7]
                     });
 
-                    // Balão flutuante com as informações
                     const marker = L.marker([rio.lat, rio.lon], { icon: mapIcon }).addTo(rsMap)
                      .bindTooltip(`
                         <div class="text-center p-1">
@@ -397,16 +394,18 @@
                 }
             }
 
-            // IMPORTANTE: Desenha o mapa IMEDIATAMENTE ao abrir a página (sem esperar API)
+            // Desenha IMEDIATAMENTE (Garante que nunca fique vazio)
             drawRiversMap();
 
             // ==========================================
-            // 3. ATUALIZAÇÃO VIA API (Substitui os dados silenciosamente)
+            // 3. ATUALIZAÇÃO VIA API (Atualiza as cores e status dinamicamente)
             // ==========================================
             async function fetchLiveRiverData() {
                 try {
-                    // Proxy público para driblar bloqueio CORS no celular e forçar a leitura do Vercel
-                    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://monitoraaguasrs.vercel.app/api/cota-rios');
+                    // Cache-buster adicionado para o Vercel NUNCA salvar dados velhos
+                    const targetUrl = 'https://monitoraaguasrs.vercel.app/api/cota-rios?cb=' + Date.now();
+                    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl) + '&disableCache=true';
+                    
                     const response = await fetch(proxyUrl);
                     const data = await response.json();
                     
@@ -418,26 +417,38 @@
                             if (jsonData.estacoes && jsonData.estacoes[rio.id]) {
                                 const estacao = jsonData.estacoes[rio.id];
                                 rio.nivelAtual = parseFloat(estacao.nivelMetros);
-                                rio.status = estacao.status.replace(/_/g, ' '); 
-                                rio.cor = estacao.statusColor || rio.cor;
+                                
+                                const statusName = estacao.status.replace(/_/g, ' ').toUpperCase();
+                                rio.status = statusName;
+                                
+                                // Trava de Segurança: Obriga a pintura exata de acordo com a palavra do alerta
+                                if (statusName.includes('ESTIAGEM') || statusName.includes('INUNDACAO') || statusName.includes('CRITICO')) {
+                                    rio.cor = '#ef4444'; // Vermelho
+                                } else if (statusName.includes('ALERTA')) {
+                                    rio.cor = '#f97316'; // Laranja
+                                } else if (statusName.includes('ATENCAO')) {
+                                    rio.cor = '#eab308'; // Amarelo
+                                } else {
+                                    rio.cor = '#22c55e'; // Verde
+                                }
+                                
                                 precisaAtualizarMapa = true;
                             }
                         });
                         
-                        // Se encontrou dados novos, manda o mapa se redesenhar sozinho
                         if (precisaAtualizarMapa) drawRiversMap();
                     }
                 } catch (e) {
-                    console.log("Falha de conexão com a API externa. O mapa continuará exibindo os dados de segurança carregados inicialmente.");
+                    console.log("Falha na API externa. Mantendo fallback de segurança visual.");
                 }
             }
             
-            // Chama a API 2 segundos após a página abrir, e depois a cada 5 minutos
+            // Chama a API 2 segundos após a página abrir
             setTimeout(fetchLiveRiverData, 2000);
             setInterval(fetchLiveRiverData, 5 * 60 * 1000);
 
             // ==========================================
-            // 4. ALERTAS REAIS DO INMET (Foco no RS)
+            // 4. ALERTAS REAIS DO INMET (RS)
             // ==========================================
             async function fetchInmetAlerts() {
                 const tickerEl = document.getElementById('liveTicker');
@@ -448,7 +459,6 @@
                     const data = await response.json();
                     let alertas = (data && data.hoje) ? data.hoje : [];
                     
-                    // Filtra apenas alertas que contêm o Rio Grande do Sul
                     alertas = alertas.filter(a => {
                         const est = (a.estados || '').toLowerCase();
                         const mun = (a.municipios || '').toLowerCase();
@@ -458,7 +468,7 @@
                     if (alertas.length === 0) {
                         tickerContainer.classList.remove('bg-[rgba(127,29,29,0.9)]');
                         tickerContainer.classList.add('safe');
-                        tickerEl.innerHTML = '✅ <span class="text-white">INMET OFICIAL:</span> NENHUM ALERTA METEOROLÓGICO SEVERO ATIVO PARA O ESTADO DO RIO GRANDE DO SUL NESTE MOMENTO.';
+                        tickerEl.innerHTML = '✅ <span class="text-white">INMET OFICIAL:</span> NENHUM ALERTA METEOROLÓGICO SEVERO ATIVO PARA O RIO GRANDE DO SUL NESTE MOMENTO.';
                         return;
                     }
 
@@ -466,24 +476,23 @@
                     alertas.forEach(a => {
                         const sev = a.aviso_severidade || 'Alerta';
                         const desc = a.aviso_descricao || 'Condição climática adversa';
-                        
                         let cidadesList = (a.municipios || '').split(',').map(c => c.trim());
                         let cidadesShow = cidadesList.slice(0, 5).join(', ');
                         if (cidadesList.length > 5) cidadesShow += ` e mais ${cidadesList.length - 5} municípios`;
                         
                         let cor = sev.toLowerCase().includes('perigo') && !sev.toLowerCase().includes('potencial') ? 'text-red-300' : 'text-yellow-300';
-                        str += ` 🚨 <span class="${cor}">[INMET OFICIAL - ${sev.toUpperCase()}]</span>: ${desc.toUpperCase()} - 📍 AFETA (RS): ${cidadesShow} &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; `;
+                        str += ` 🚨 <span class="${cor}">[INMET OFICIAL - ${sev.toUpperCase()}]</span>: ${desc.toUpperCase()} - 📍 AFETA: ${cidadesShow} &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; `;
                     });
                     tickerEl.innerHTML = str;
                     
                 } catch (e) {
-                    tickerEl.innerHTML = '⚠️ SISTEMA DE ALERTAS GOVERNAMENTAIS (INMET) TEMPORARIAMENTE INDISPONÍVEL.';
+                    tickerEl.innerHTML = '⚠️ SISTEMA DE ALERTAS (INMET) TEMPORARIAMENTE INDISPONÍVEL.';
                 }
             }
             fetchInmetAlerts();
 
             // ==========================================
-            // 5. GRÁFICOS DE PROJEÇÃO (Chart.js)
+            // 5. GRÁFICOS DE PROJEÇÃO
             // ==========================================
             Chart.defaults.color = '#64748b';
             Chart.defaults.font.family = "'Roboto Mono', monospace";
@@ -511,7 +520,7 @@
                         { label: 'Jacuí', data: [20, 85, 140, 120], borderColor: '#a855f7', borderWidth: 2, tension: 0.4 },
                         { label: 'Sinos', data: [12, 80, 130, 115], borderColor: '#22d3ee', borderWidth: 2, tension: 0.4 },
                         { label: 'Guaíba', data: [25, 110, 185, 150], borderColor: '#ef4444', borderWidth: 2, tension: 0.4, backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true },
-                        { label: 'Transbordamento', data: [100, 100, 100, 100], borderColor: '#ffffff', borderWidth: 1, borderDash: [5, 5] }
+                        { label: '100% (Lim.)', data: [100, 100, 100, 100], borderColor: '#ffffff', borderWidth: 1, borderDash: [5, 5] }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { max: 200, ticks: { callback: v => v + '%' } } } }
@@ -557,7 +566,7 @@
                         <div class="mb-4">
                             <div class="flex justify-between items-end mb-1">
                                 <span class="font-bold text-white uppercase">${rio.name}</span>
-                                <span class="text-xs px-2 py-1 bg-slate-900/80 border rounded uppercase font-bold shadow-[0_0_8px_rgba(0,0,0,0.5)]" style="color: ${rio.cor}; border-color: ${rio.cor};">
+                                <span class="text-[10px] px-2 py-1 bg-slate-900/80 border rounded uppercase font-bold shadow-[0_0_8px_rgba(0,0,0,0.5)]" style="color: ${rio.cor}; border-color: ${rio.cor};">
                                     ${rio.status}
                                 </span>
                             </div>
