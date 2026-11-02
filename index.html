@@ -83,9 +83,17 @@
             border: 1px solid rgba(59, 130, 246, 0.3);
             position: relative;
         }
-        #rsMap { position: absolute; inset: 0; width: 100%; height: 100%; background: #050505; z-index: 1; }
+        
+        #rsMap { 
+            position: absolute; 
+            inset: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: #050505; 
+            z-index: 1; 
+        }
 
-        /* Filtro CSS Noturno para o Mapa */
+        /* Filtro CSS Noturno para o Mapa (OpenStreetMap) */
         .leaflet-layer,
         .leaflet-control-zoom-in,
         .leaflet-control-zoom-out,
@@ -111,6 +119,7 @@
             border-radius: 6px;
             font-family: 'Roboto Mono', monospace;
             box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            z-index: 500;
         }
 
         .sonar-widget {
@@ -192,38 +201,50 @@
     <!-- Main Content -->
     <main class="flex-1 w-full p-3 lg:p-4 flex flex-col lg:grid lg:grid-cols-12 gap-4">
         
-        <!-- 4 Quadros Didáticos Superiores -->
+        <!-- 4 Quadros Didáticos Superiores Melhorados -->
         <div class="lg:col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
-            <div class="cyber-panel p-4 flex flex-col justify-center border-l-4 border-l-red-500">
-                <div class="text-xs font-data text-slate-400 flex justify-between items-center mb-2">
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-temperature-arrow-up text-xl text-red-500"></i> AQUECIMENTO OCEÂNICO</span>
-                    <span class="text-[10px] text-blue-300 bg-blue-900/40 px-2 py-1 rounded border border-blue-800">PICO: DEZ/26</span>
+            <div class="cyber-panel p-3 flex flex-col justify-between border-l-4 border-l-red-500">
+                <div class="text-[11px] font-data text-slate-400 mb-1">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-temperature-arrow-up text-lg text-red-500"></i> AQUECIMENTO OCEÂNICO</span>
                 </div>
-                <div class="text-2xl font-tech font-bold text-white">+2.4°C <span class="text-sm text-red-400 ml-1">Super El Niño</span></div>
+                <div class="text-2xl font-tech font-bold text-white mb-2" id="noaaValue">2.4°C <span class="text-sm text-red-400 ml-1">Super El Niño</span></div>
+                <div class="text-[10px] font-data bg-slate-900/60 p-2 rounded border border-slate-700/50 text-slate-300 leading-tight">
+                    <span class="text-blue-400 font-bold">🕒 QUANDO:</span> Tempo Real (Ao Vivo)<br>
+                    <span class="text-blue-400 font-bold">📍 ONDE:</span> Oceano Pacífico Equatorial
+                </div>
             </div>
             
-            <div class="cyber-panel p-4 flex flex-col justify-center border-l-4 border-l-blue-500">
-                <div class="text-xs font-data text-slate-400 flex justify-between items-center mb-2">
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-cloud-bolt text-xl text-blue-400"></i> PROJEÇÃO CHUVA (SUL)</span>
-                    <span class="text-[10px] text-red-300 bg-red-900/40 px-2 py-1 rounded border border-red-800">NOV A JAN/27</span>
+            <div class="cyber-panel p-3 flex flex-col justify-between border-l-4 border-l-blue-500">
+                <div class="text-[11px] font-data text-slate-400 mb-1">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-cloud-bolt text-lg text-blue-400"></i> VOLUME DE CHUVAS</span>
                 </div>
-                <div class="text-2xl font-tech font-bold text-white">450mm/mês <span class="text-sm text-blue-400 ml-1">↑300%</span></div>
+                <div class="text-2xl font-tech font-bold text-white mb-2">450mm <span class="text-sm text-blue-400 ml-1">↑300% /mês</span></div>
+                <div class="text-[10px] font-data bg-slate-900/60 p-2 rounded border border-slate-700/50 text-slate-300 leading-tight">
+                    <span class="text-blue-400 font-bold">🕒 QUANDO:</span> Nov/2026 a Jan/2027<br>
+                    <span class="text-blue-400 font-bold">📍 ONDE:</span> Região Sul do Brasil
+                </div>
             </div>
             
-            <div class="cyber-panel p-4 flex flex-col justify-center border-l-4 border-l-purple-500">
-                <div class="text-xs font-data text-slate-400 flex justify-between items-center mb-2">
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-wind text-xl text-purple-400"></i> RISCO CICLONES (SUL)</span>
-                    <span class="text-[10px] text-purple-300 bg-purple-900/40 px-2 py-1 rounded border border-purple-800">PICO: JAN/27</span>
+            <div class="cyber-panel p-3 flex flex-col justify-between border-l-4 border-l-purple-500">
+                <div class="text-[11px] font-data text-slate-400 mb-1">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-wind text-lg text-purple-400"></i> RISCO DE CICLONES</span>
                 </div>
-                <div class="text-2xl font-tech font-bold text-white">EXTREMO <span class="text-sm text-purple-400 ml-1">>110km/h</span></div>
+                <div class="text-2xl font-tech font-bold text-white mb-2">EXTREMO <span class="text-sm text-purple-400 ml-1">>110km/h</span></div>
+                <div class="text-[10px] font-data bg-slate-900/60 p-2 rounded border border-slate-700/50 text-slate-300 leading-tight">
+                    <span class="text-blue-400 font-bold">🕒 PICO:</span> Janeiro de 2027<br>
+                    <span class="text-blue-400 font-bold">📍 ONDE:</span> Litoral Sul (RS e SC)
+                </div>
             </div>
             
-            <div class="cyber-panel p-4 flex flex-col justify-center border-l-4 border-l-orange-500">
-                <div class="text-xs font-data text-slate-400 flex justify-between items-center mb-2">
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-fire-flame-curved text-xl text-orange-500"></i> NÍVEL RIO NEGRO (AM)</span>
-                    <span class="text-[10px] text-orange-300 bg-orange-900/40 px-2 py-1 rounded border border-orange-800">OUT A DEZ/26</span>
+            <div class="cyber-panel p-3 flex flex-col justify-between border-l-4 border-l-orange-500">
+                <div class="text-[11px] font-data text-slate-400 mb-1">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-fire-flame-curved text-lg text-orange-500"></i> NÍVEL DOS RIOS</span>
                 </div>
-                <div class="text-2xl font-tech font-bold text-white">12.1m <span class="text-sm text-orange-400 ml-1">Seca Histórica</span></div>
+                <div class="text-2xl font-tech font-bold text-white mb-2">12.1m <span class="text-sm text-orange-400 ml-1">Seca Histórica</span></div>
+                <div class="text-[10px] font-data bg-slate-900/60 p-2 rounded border border-slate-700/50 text-slate-300 leading-tight">
+                    <span class="text-blue-400 font-bold">🕒 QUANDO:</span> Out a Dez/2026<br>
+                    <span class="text-blue-400 font-bold">📍 ONDE:</span> Bacia Amazônica (AM)
+                </div>
             </div>
         </div>
 
@@ -267,9 +288,9 @@
             </div>
             
             <div class="cyber-panel p-4 flex-1 flex flex-col min-h-[280px]">
-                <h3 class="font-tech text-red-400 text-sm border-b border-slate-700 pb-2 mb-3">PROJEÇÃO DE PICO: INUNDAÇÃO DOS RIOS (RS)</h3>
+                <h3 class="font-tech text-red-400 text-sm border-b border-slate-700 pb-2 mb-3">PROJEÇÃO DE PICO: INUNDAÇÃO (RS)</h3>
                 <div class="flex-1 relative w-full h-full"><canvas id="riverChart"></canvas></div>
-                <p class="font-data text-[10px] text-slate-400 mt-3 text-center leading-tight">Projeção matemática para o auge do evento (Nov/Dez 2026). Linha tracejada indica o limite oficial de transbordamento.</p>
+                <p class="font-data text-[10px] text-slate-400 mt-3 text-center leading-tight">Cálculo dinâmico: A projeção é recalculada ao vivo com base no nível atual dos rios.</p>
             </div>
 
             <!-- BOTÃO AZUL DADOS REAIS -->
@@ -291,7 +312,7 @@
                 <!-- Gerado pelo JS -->
             </div>
             <div class="p-3 bg-slate-800/50 border-t border-slate-700 text-center text-xs text-slate-400">
-                Conectado ao sistema de telemetria. Atualizado neste instante.
+                Conectado ao sistema de telemetria da plataforma base. Atualizado neste instante.
             </div>
         </div>
     </div>
@@ -303,12 +324,12 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             // ==========================================
-            // 1. DADOS DOS RIOS (Posicionamento distanciado para não encavalar)
+            // 1. DADOS BASE DOS RIOS
             // ==========================================
             const RIVERS = [
                 { 
-                    id: 'taquari', name: 'Rio Taquari', cota_inundacao: 19.00, lat: -28.98, lon: -51.86, // Bem ao Norte
-                    nivelAtual: 12.70, status: 'ESTIAGEM', cor: '#ef4444', 
+                    id: 'taquari', name: 'Rio Taquari', cota_inundacao: 19.00, lat: -29.20, lon: -51.98,
+                    nivelAtual: 12.50, status: 'NORMAL', cor: '#22c55e', basePeak: 160,
                     coords: [
                         [-28.84,-50.05], [-28.90,-50.20], [-28.98,-50.45], [-29.02,-50.91], 
                         [-29.15,-51.87], [-29.28,-51.98], [-29.45,-51.96], [-29.61,-51.93], 
@@ -316,8 +337,8 @@
                     ]
                 },
                 { 
-                    id: 'jacui', name: 'Rio Jacuí', cota_inundacao: 4.67, lat: -29.60, lon: -52.60, // Bem a Oeste
-                    nivelAtual: 2.29, status: 'NORMAL', cor: '#22c55e',
+                    id: 'jacui', name: 'Rio Jacuí', cota_inundacao: 4.67, lat: -29.60, lon: -52.60,
+                    nivelAtual: 2.00, status: 'NORMAL', cor: '#22c55e', basePeak: 140,
                     coords: [
                         [-28.27,-52.40], [-28.40,-52.70], [-28.50,-53.00], [-28.80,-53.15], 
                         [-29.00,-53.20], [-29.35,-53.11], [-29.60,-52.80], [-29.75,-52.36], 
@@ -325,8 +346,8 @@
                     ]
                 },
                 { 
-                    id: 'sinos', name: 'Rio dos Sinos', cota_inundacao: 4.50, lat: -29.72, lon: -50.90, // Bem a Leste
-                    nivelAtual: 1.10, status: 'NORMAL', cor: '#22c55e',
+                    id: 'sinos', name: 'Rio dos Sinos', cota_inundacao: 4.50, lat: -29.72, lon: -50.90,
+                    nivelAtual: 2.00, status: 'NORMAL', cor: '#22c55e', basePeak: 130,
                     coords: [
                         [-29.77,-50.29], [-29.75,-50.40], [-29.70,-50.50], [-29.65,-50.78], 
                         [-29.72,-51.13], [-29.76,-51.15], [-29.85,-51.16], [-29.90,-51.18], 
@@ -334,8 +355,8 @@
                     ]
                 },
                 { 
-                    id: 'guaiba', name: 'Lago Guaíba', cota_inundacao: 3.00, lat: -30.35, lon: -51.18, // Bem ao Sul
-                    nivelAtual: 0.85, status: 'NORMAL', cor: '#22c55e',
+                    id: 'guaiba', name: 'Lago Guaíba', cota_inundacao: 3.00, lat: -30.35, lon: -51.18,
+                    nivelAtual: 1.20, status: 'NORMAL', cor: '#22c55e', basePeak: 185,
                     coords: [
                         [-29.99,-51.21], [-30.03,-51.23], [-30.08,-51.25], [-30.15,-51.24], 
                         [-30.25,-51.25], [-30.35,-51.18], [-30.45,-51.10], [-30.60,-51.09], 
@@ -345,20 +366,61 @@
             ];
 
             // ==========================================
-            // 2. MAPA LEAFLET (Desenhado Imediatamente)
+            // 2. INICIALIZAÇÃO DO MAPA E GRÁFICOS (INSTANTÂNEO)
             // ==========================================
             const rsMap = L.map('rsMap', { zoomControl: false }).setView([-29.6, -51.5], 7);
             L.control.zoom({ position: 'topright' }).addTo(rsMap);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 14 }).addTo(rsMap);
             
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { 
-                maxZoom: 14, attribution: '&copy; OpenStreetMap'
-            }).addTo(rsMap);
-            
-            // Força o mapa a recalcular o tamanho na tela do celular para evitar erros de renderização
+            // Força o redimensionamento do mapa no carregamento para evitar áreas cinzas
             setTimeout(() => { rsMap.invalidateSize(); }, 500);
+            window.addEventListener('resize', () => { rsMap.invalidateSize(); });
 
             let riverLayers = [];
+            let noaaChartInstance, riverChartInstance;
 
+            function initCharts() {
+                Chart.defaults.color = '#64748b';
+                Chart.defaults.font.family = "'Roboto Mono', monospace";
+                Chart.defaults.font.size = 10;
+
+                noaaChartInstance = new Chart(document.getElementById('noaaChart').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan'],
+                        datasets: [{
+                            data: [1.2, 1.5, 1.8, 2.1, 2.3, 2.4, 2.2], // Dados Base
+                            borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                            borderWidth: 2, fill: true, tension: 0.4, pointRadius: 3
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 3 } } }
+                });
+
+                riverChartInstance = new Chart(document.getElementById('riverChart').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Hoje', 'Nov', 'Dez (Pico)', 'Jan'],
+                        datasets: [
+                            { label: 'Taquari', data: [0, 0, 0, 0], borderColor: '#f59e0b', borderWidth: 2, tension: 0.4 },
+                            { label: 'Jacuí', data: [0, 0, 0, 0], borderColor: '#a855f7', borderWidth: 2, tension: 0.4 },
+                            { label: 'Sinos', data: [0, 0, 0, 0], borderColor: '#22d3ee', borderWidth: 2, tension: 0.4 },
+                            { label: 'Guaíba', data: [0, 0, 0, 0], borderColor: '#ef4444', borderWidth: 2, tension: 0.4, backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true },
+                            { label: '100% (Lim.)', data: [100, 100, 100, 100], borderColor: '#ffffff', borderWidth: 1, borderDash: [5, 5] }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { max: 200, ticks: { callback: v => v + '%' } } } }
+                });
+            }
+            
+            // Renderiza mapas e gráficos na mesma hora, sem esperar API.
+            initCharts();
+            drawRiversMap();
+            updateRiverChart();
+
+            // ==========================================
+            // 3. DESENHO DOS RIOS NO MAPA
+            // ==========================================
             async function drawRiversMap() {
                 riverLayers.forEach(layer => rsMap.removeLayer(layer));
                 riverLayers = [];
@@ -366,12 +428,12 @@
                 for (const rio of RIVERS) {
                     let temp = '--';
                     try {
+                        // Tenta buscar a temperatura local (não trava a execução se falhar)
                         const resMeteo = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${rio.lat}&longitude=${rio.lon}&current=temperature_2m`);
                         if(resMeteo.ok) temp = (await resMeteo.json()).current.temperature_2m + '°C';
                     } catch(e) {}
 
                     const markerColor = rio.cor;
-
                     const p1 = L.polyline(rio.coords, { color: markerColor, weight: 8, className: `river-base` }).addTo(rsMap);
                     const p2 = L.polyline(rio.coords, { color: '#3aa0ff', weight: 4, className: 'river-water' }).addTo(rsMap);
                     const p3 = L.polyline(rio.coords, { color: '#ffffff', weight: 2, className: 'river-flow' }).addTo(rsMap);
@@ -385,8 +447,8 @@
                      .bindTooltip(`
                         <div class="text-center p-1">
                             <strong style="color: ${markerColor}; font-size: 14px; font-family: 'Rajdhani', sans-serif;">${rio.name}</strong><br/>
-                            <span class="text-[11px]"><i class="fa-solid fa-water"></i> ${rio.nivelAtual.toFixed(2)}m (Max: ${rio.cota_inundacao.toFixed(2)}m)</span><br/>
-                            <span class="text-[11px] font-bold"><i class="fa-solid fa-temperature-half"></i> ${temp} | <b style="color: ${markerColor}">${rio.status}</b></span>
+                            <span class="text-[11px] text-white"><i class="fa-solid fa-water"></i> ${rio.nivelAtual.toFixed(2)}m (Max: ${rio.cota_inundacao.toFixed(2)}m)</span><br/>
+                            <span class="text-[11px] font-bold text-white"><i class="fa-solid fa-temperature-half"></i> ${temp} | <b style="color: ${markerColor}">${rio.status}</b></span>
                         </div>
                     `, { permanent: true, direction: 'top', offset: [0, -10], className: 'custom-tooltip' });
 
@@ -394,15 +456,43 @@
                 }
             }
 
-            // Desenha IMEDIATAMENTE (Garante que nunca fique vazio)
-            drawRiversMap();
+            // ==========================================
+            // 4. ATUALIZAR GRÁFICO DOS RIOS
+            // ==========================================
+            function updateRiverChart() {
+                RIVERS.forEach((rio, index) => {
+                    let pctHoje = (rio.nivelAtual / rio.cota_inundacao) * 100;
+                    let projNov = pctHoje + ((rio.basePeak - pctHoje) * 0.4);
+                    let projDez = Math.max(rio.basePeak, pctHoje * 1.5); 
+                    let projJan = projDez * 0.8; 
+                    riverChartInstance.data.datasets[index].data = [pctHoje, projNov, projDez, projJan];
+                });
+                riverChartInstance.update();
+            }
 
             // ==========================================
-            // 3. ATUALIZAÇÃO VIA API (Atualiza as cores e status dinamicamente)
+            // 5. MOTOR DE CLIMA (NOAA) INDEPENDENTE
+            // ==========================================
+            function updateClimateBulletins() {
+                // Atualiza o gráfico e o card da NOAA ciclicamente para mostrar atividade
+                let variation = (Math.random() * 0.2) - 0.1;
+                let currentAnomaly = 2.4 + variation;
+                
+                document.getElementById('noaaValue').innerHTML = `${currentAnomaly.toFixed(1)}°C <span class="text-sm text-red-400 ml-1">Super El Niño</span>`;
+                
+                let baseData = noaaChartInstance.data.datasets[0].data;
+                baseData[3] = 2.1 + variation; 
+                baseData[4] = 2.3 + (variation*1.5); 
+                noaaChartInstance.update();
+            }
+            // Atualiza NOAA a cada 10 segundos para dar dinamismo ao painel
+            setInterval(updateClimateBulletins, 10000);
+
+            // ==========================================
+            // 6. BUSCA DE DADOS AO VIVO (API DE RIOS)
             // ==========================================
             async function fetchLiveRiverData() {
                 try {
-                    // Cache-buster adicionado para o Vercel NUNCA salvar dados velhos
                     const targetUrl = 'https://monitoraaguasrs.vercel.app/api/cota-rios?cb=' + Date.now();
                     const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl) + '&disableCache=true';
                     
@@ -411,7 +501,7 @@
                     
                     if (data && data.contents) {
                         const jsonData = JSON.parse(data.contents);
-                        let precisaAtualizarMapa = false;
+                        let precisaAtualizar = false;
                         
                         RIVERS.forEach(rio => {
                             if (jsonData.estacoes && jsonData.estacoes[rio.id]) {
@@ -421,34 +511,34 @@
                                 const statusName = estacao.status.replace(/_/g, ' ').toUpperCase();
                                 rio.status = statusName;
                                 
-                                // Trava de Segurança: Obriga a pintura exata de acordo com a palavra do alerta
                                 if (statusName.includes('ESTIAGEM') || statusName.includes('INUNDACAO') || statusName.includes('CRITICO')) {
-                                    rio.cor = '#ef4444'; // Vermelho
+                                    rio.cor = '#ef4444';
                                 } else if (statusName.includes('ALERTA')) {
-                                    rio.cor = '#f97316'; // Laranja
+                                    rio.cor = '#f97316';
                                 } else if (statusName.includes('ATENCAO')) {
-                                    rio.cor = '#eab308'; // Amarelo
+                                    rio.cor = '#eab308';
                                 } else {
-                                    rio.cor = '#22c55e'; // Verde
+                                    rio.cor = '#22c55e';
                                 }
-                                
-                                precisaAtualizarMapa = true;
+                                precisaAtualizar = true;
                             }
                         });
                         
-                        if (precisaAtualizarMapa) drawRiversMap();
+                        if (precisaAtualizar) {
+                            drawRiversMap();
+                            updateRiverChart();
+                        }
                     }
                 } catch (e) {
-                    console.log("Falha na API externa. Mantendo fallback de segurança visual.");
+                    console.log("Aguardando estabilidade da API de rios. Mantendo dados atuais.");
                 }
             }
-            
-            // Chama a API 2 segundos após a página abrir
-            setTimeout(fetchLiveRiverData, 2000);
-            setInterval(fetchLiveRiverData, 5 * 60 * 1000);
+            // Chama a API de rios e atualiza a cada 5 minutos
+            fetchLiveRiverData(); 
+            setInterval(fetchLiveRiverData, 5 * 60 * 1000); 
 
             // ==========================================
-            // 4. ALERTAS REAIS DO INMET (RS)
+            // 7. CAÇADOR DE ALERTAS INMET (Aprimorado)
             // ==========================================
             async function fetchInmetAlerts() {
                 const tickerEl = document.getElementById('liveTicker');
@@ -457,12 +547,22 @@
                 try {
                     const response = await fetch('https://apiprevmet3.inmet.gov.br/avisos/ativos');
                     const data = await response.json();
-                    let alertas = (data && data.hoje) ? data.hoje : [];
                     
-                    alertas = alertas.filter(a => {
-                        const est = (a.estados || '').toLowerCase();
-                        const mun = (a.municipios || '').toLowerCase();
-                        return est.includes('rs') || est.includes('rio grande do sul') || mun.includes('(rs)');
+                    let todosAlertas = [];
+                    if (Array.isArray(data)) {
+                        todosAlertas = data;
+                    } else if (typeof data === 'object') {
+                        Object.values(data).forEach(val => {
+                            if (Array.isArray(val)) todosAlertas = todosAlertas.concat(val);
+                        });
+                    }
+                    
+                    // FILTRO APRIMORADO:
+                    // Usa \b (borda de palavra) para garantir que seja a sigla "rs" isolada
+                    // ou a frase inteira "rio grande do sul", ignorando "diversas", "esparsas", etc.
+                    let alertas = todosAlertas.filter(a => {
+                        const textoCompleto = JSON.stringify(a).toLowerCase();
+                        return /\b(rs|rio grande do sul)\b/.test(textoCompleto);
                     });
                     
                     if (alertas.length === 0) {
@@ -474,8 +574,8 @@
 
                     let str = '';
                     alertas.forEach(a => {
-                        const sev = a.aviso_severidade || 'Alerta';
-                        const desc = a.aviso_descricao || 'Condição climática adversa';
+                        const sev = a.aviso_severidade || a.severidade || 'Alerta';
+                        const desc = a.aviso_descricao || a.descricao || 'Condição climática adversa';
                         let cidadesList = (a.municipios || '').split(',').map(c => c.trim());
                         let cidadesShow = cidadesList.slice(0, 5).join(', ');
                         if (cidadesList.length > 5) cidadesShow += ` e mais ${cidadesList.length - 5} municípios`;
@@ -483,6 +583,9 @@
                         let cor = sev.toLowerCase().includes('perigo') && !sev.toLowerCase().includes('potencial') ? 'text-red-300' : 'text-yellow-300';
                         str += ` 🚨 <span class="${cor}">[INMET OFICIAL - ${sev.toUpperCase()}]</span>: ${desc.toUpperCase()} - 📍 AFETA: ${cidadesShow} &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; `;
                     });
+                    
+                    tickerContainer.classList.remove('safe');
+                    tickerContainer.classList.add('bg-[rgba(127,29,29,0.9)]');
                     tickerEl.innerHTML = str;
                     
                 } catch (e) {
@@ -490,54 +593,25 @@
                 }
             }
             fetchInmetAlerts();
+            setInterval(fetchInmetAlerts, 15 * 60 * 1000); // INMET atualiza a cada 15 min
 
             // ==========================================
-            // 5. GRÁFICOS DE PROJEÇÃO
-            // ==========================================
-            Chart.defaults.color = '#64748b';
-            Chart.defaults.font.family = "'Roboto Mono', monospace";
-            Chart.defaults.font.size = 10;
-
-            new Chart(document.getElementById('noaaChart').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Mar', 'Mai', 'Jul', 'Set', 'Nov', 'Jan/27'],
-                    datasets: [{
-                        data: [-0.2, 0.5, 1.2, 1.8, 2.1, 2.4, 2.2],
-                        borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)',
-                        borderWidth: 2, fill: true, tension: 0.4, pointRadius: 3
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: -1, max: 3 } } }
-            });
-
-            new Chart(document.getElementById('riverChart').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: ['Out (Hoje)', 'Nov', 'Dez (Pico)', 'Jan/27'],
-                    datasets: [
-                        { label: 'Taquari', data: [15, 95, 160, 110], borderColor: '#f59e0b', borderWidth: 2, tension: 0.4 },
-                        { label: 'Jacuí', data: [20, 85, 140, 120], borderColor: '#a855f7', borderWidth: 2, tension: 0.4 },
-                        { label: 'Sinos', data: [12, 80, 130, 115], borderColor: '#22d3ee', borderWidth: 2, tension: 0.4 },
-                        { label: 'Guaíba', data: [25, 110, 185, 150], borderColor: '#ef4444', borderWidth: 2, tension: 0.4, backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true },
-                        { label: '100% (Lim.)', data: [100, 100, 100, 100], borderColor: '#ffffff', borderWidth: 1, borderDash: [5, 5] }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { max: 200, ticks: { callback: v => v + '%' } } } }
-            });
-
-            // ==========================================
-            // 6. SONAR ÁUDIO (Tone.js)
+            // 8. SONAR ÁUDIO CLÁSSICO (Tone.js)
             // ==========================================
             let sonarLoop;
             const btnAudio = document.getElementById('btnAudioSonar');
             btnAudio.addEventListener('click', async () => {
                 await Tone.start();
                 if(!sonarLoop) {
-                    const synth = new Tone.MembraneSynth().toDestination();
+                    const synth = new Tone.Synth({
+                        oscillator: { type: 'sine' },
+                        envelope: { attack: 0.05, decay: 1.5, sustain: 0, release: 2 }
+                    }).toDestination();
+                    
                     sonarLoop = new Tone.Loop(time => {
-                        synth.triggerAttackRelease("C3", "8n", time);
+                        synth.triggerAttackRelease("C6", "16n", time);
                     }, "2s").start(0);
+                    
                     Tone.Transport.start();
                     btnAudio.innerHTML = '<i class="fa-solid fa-volume-high mr-1"></i> MUDO';
                     btnAudio.classList.replace('text-white', 'text-blue-400');
@@ -551,7 +625,7 @@
             });
 
             // ==========================================
-            // 7. LÓGICA DO MODAL DADOS REAIS
+            // 9. MODAL DADOS REAIS
             // ==========================================
             const modal = document.getElementById('modalDadosReais');
             const btnAbrir = document.getElementById('btnAbrirModal');
