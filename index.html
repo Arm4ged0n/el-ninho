@@ -166,22 +166,14 @@
         .sonar-cross-h { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: rgba(59, 130, 246, 0.4); z-index: 2; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Modal DADOS REAIS */
-        #modalDadosReais {
-            display: none;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(10px);
-        }
-        #modalDadosReais.active { display: flex; }
-
-        /* Modal MANCHAS DE INUNDAÇÃO */
-        #modalManchas {
+        /* Modais */
+        .modal-overlay {
             display: none;
             background: rgba(0,0,0,0.9);
             backdrop-filter: blur(10px);
             z-index: 9999;
         }
-        #modalManchas.active { display: flex; }
+        .modal-overlay.active { display: flex; }
 
     </style>
 </head>
@@ -288,35 +280,40 @@
             </div>
         </section>
 
-        <!-- Coluna da Direita: Gráficos e Botão -->
+        <!-- Coluna da Direita: Gráficos e Botões -->
         <section class="lg:col-span-4 flex flex-col gap-4">
             
-            <div class="cyber-panel p-4 flex-1 flex flex-col min-h-[250px]">
+            <div class="cyber-panel p-4 flex-1 flex flex-col min-h-[200px]">
                 <h3 class="font-tech text-blue-400 text-sm border-b border-slate-700 pb-2 mb-3">AQUECIMENTO DO OCEANO PACÍFICO (NOAA)</h3>
                 <div class="flex-1 relative w-full h-full"><canvas id="noaaChart"></canvas></div>
             </div>
             
-            <div class="cyber-panel p-4 flex-1 flex flex-col min-h-[280px]">
+            <div class="cyber-panel p-4 flex-1 flex flex-col min-h-[220px]">
                 <h3 class="font-tech text-red-400 text-sm border-b border-slate-700 pb-2 mb-3">PROJEÇÃO DE PICO: INUNDAÇÃO (RS)</h3>
                 <div class="flex-1 relative w-full h-full"><canvas id="riverChart"></canvas></div>
                 <p class="font-data text-[10px] text-slate-400 mt-3 text-center leading-tight">Cálculo dinâmico: A projeção é recalculada ao vivo com base no nível atual dos rios.</p>
             </div>
 
-            <!-- BOTÃO AZUL DADOS REAIS -->
-            <button id="btnAbrirModal" class="cyber-panel p-4 w-full bg-blue-900/40 hover:bg-blue-800/60 border border-blue-500 text-white font-tech font-bold text-lg transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] cursor-pointer">
-                <i class="fa-solid fa-satellite-dish mr-2 animate-pulse text-blue-400"></i> DADOS REAIS DOS RIOS (API)
+            <!-- BOTÃO 1: DADOS REAIS -->
+            <button id="btnAbrirModal" class="cyber-panel p-4 w-full bg-blue-900/40 hover:bg-blue-800/60 border border-blue-500 text-white font-tech font-bold text-lg transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] cursor-pointer mt-2">
+                <i class="fa-solid fa-satellite-dish mr-2 animate-pulse text-blue-400"></i> DADOS REAIS DOS RIOS
             </button>
 
-            <!-- NOVO BOTÃO: MANCHAS DE INUNDAÇÃO -->
+            <!-- BOTÃO 2: MANCHAS DE INUNDAÇÃO -->
             <button id="btnToggleInundacao" class="cyber-panel p-4 w-full bg-red-900/40 hover:bg-red-800/60 border border-red-500 text-white font-tech font-bold text-lg transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:shadow-[0_0_25px_rgba(239,68,68,0.6)] cursor-pointer">
                 <i class="fa-solid fa-house-flood-water mr-2 text-red-400"></i> MANCHAS DE INUNDAÇÃO
+            </button>
+
+            <!-- BOTÃO 3: MAPA DE CALOR OCEÂNICO (WINDY) -->
+            <button id="btnToggleCalor" class="cyber-panel p-4 w-full bg-orange-900/40 hover:bg-orange-800/60 border border-orange-500 text-white font-tech font-bold text-lg transition-all shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] cursor-pointer">
+                <i class="fa-solid fa-temperature-full mr-2 text-orange-400"></i> MAPA DE CALOR OCEÂNICO
             </button>
         </section>
 
     </main>
 
     <!-- Modal DADOS REAIS (Tempo Real) -->
-    <div id="modalDadosReais" class="fixed inset-0 z-[9999] items-center justify-center p-4">
+    <div id="modalDadosReais" class="modal-overlay fixed inset-0 items-center justify-center p-4">
         <div class="bg-slate-900 border border-blue-500/50 rounded-lg w-full max-w-2xl shadow-[0_0_30px_rgba(0,0,0,0.8)] flex flex-col max-h-[90vh]">
             <div class="p-4 border-b border-slate-700 flex justify-between items-center">
                 <h2 class="text-xl font-tech font-bold text-blue-400"><i class="fa-solid fa-tower-cell mr-2"></i>NÍVEL ATUAL DOS RIOS - API</h2>
@@ -332,7 +329,7 @@
     </div>
 
     <!-- Modal MANCHAS DE INUNDAÇÃO (Novo Mapa Projetado) -->
-    <div id="modalManchas" class="fixed inset-0 items-center justify-center p-2 lg:p-4">
+    <div id="modalManchas" class="modal-overlay fixed inset-0 items-center justify-center p-2 lg:p-4">
         <div class="bg-slate-900 border border-red-500/50 rounded-lg w-full max-w-5xl h-[90vh] shadow-[0_0_40px_rgba(239,68,68,0.3)] flex flex-col">
             <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-red-950/40">
                 <h2 class="text-lg lg:text-xl font-tech font-bold text-red-400"><i class="fa-solid fa-house-flood-water mr-2"></i>PROJEÇÃO DE INUNDAÇÃO: CIDADES AFETADAS</h2>
@@ -344,6 +341,20 @@
             <div class="p-3 bg-slate-800/50 border-t border-slate-700 flex gap-4 text-xs text-slate-300">
                 <span class="flex items-center gap-2"><span class="w-3 h-3 bg-red-600 rounded-full opacity-50"></span> Zonas de Inundação Severa</span>
                 <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-white"></i> Risco Extremo à População</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal MAPA DE CALOR (Windy) -->
+    <div id="modalCalorOceano" class="modal-overlay fixed inset-0 items-center justify-center p-2 lg:p-4">
+        <div class="bg-slate-900 border border-orange-500/50 rounded-lg w-full max-w-6xl h-[90vh] shadow-[0_0_40px_rgba(249,115,22,0.3)] flex flex-col">
+            <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-orange-950/40">
+                <h2 class="text-lg lg:text-xl font-tech font-bold text-orange-400"><i class="fa-solid fa-temperature-full mr-2"></i>AQUECIMENTO OCEÂNICO - TEMPO REAL (WINDY)</h2>
+                <button id="btnFecharCalor" class="text-slate-400 hover:text-white text-2xl cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <!-- Iframe do Windy - overlay SST (Temperatura da Superfície do Mar) -->
+            <div class="flex-1 w-full relative p-0 bg-black">
+                <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km%2Fh&zoom=3&overlay=sst&product=ecmwf&level=surface&lat=-10.0&lon=-90.0" frameborder="0" style="border:0; border-radius: 0 0 8px 8px;"></iframe>
             </div>
         </div>
     </div>
@@ -692,7 +703,7 @@
             modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
 
             // ==========================================
-            // 10. NOVO MAPA: MANCHAS DE INUNDAÇÃO
+            // 10. MODAL: MANCHAS DE INUNDAÇÃO
             // ==========================================
             const modalManchas = document.getElementById('modalManchas');
             const btnToggleFlood = document.getElementById('btnToggleInundacao');
@@ -702,13 +713,11 @@
             btnToggleFlood.addEventListener('click', () => {
                 modalManchas.classList.add('active');
                 
-                // Inicializa o novo mapa apenas na primeira vez que abre
                 if (!mapInundacao) {
                     mapInundacao = L.map('mapInundacao', { zoomControl: false }).setView([-29.8, -51.5], 8);
                     L.control.zoom({ position: 'topright' }).addTo(mapInundacao);
                     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 13 }).addTo(mapInundacao);
                     
-                    // Zonas Vermelhas de Inundação
                     const zonasInundacao = [
                         { lat: -29.45, lon: -51.96, radius: 12000, name: "Vale do Taquari" },
                         { lat: -29.92, lon: -51.18, radius: 10000, name: "Canoas / Sinos" },
@@ -722,7 +731,6 @@
                         }).addTo(mapInundacao);
                     });
 
-                    // Marcadores Permanentes com Nome das Cidades
                     const cidadesCriticas = [
                         { lat: -29.15, lon: -51.87, nome: "Muçum", pop: "Destruição" },
                         { lat: -29.45, lon: -51.96, nome: "Lajeado/Estrela", pop: "Severo" },
@@ -749,12 +757,30 @@
                     });
                 }
                 
-                // Força o novo mapa a recalcular seu tamanho pois estava invisível
                 setTimeout(() => { mapInundacao.invalidateSize(); }, 300);
             });
 
             btnFecharManchas.addEventListener('click', () => modalManchas.classList.remove('active'));
             modalManchas.addEventListener('click', (e) => { if(e.target === modalManchas) modalManchas.classList.remove('active'); });
+
+            // ==========================================
+            // 11. NOVO MODAL: MAPA DE CALOR OCEÂNICO (WINDY)
+            // ==========================================
+            const modalCalor = document.getElementById('modalCalorOceano');
+            const btnToggleCalor = document.getElementById('btnToggleCalor');
+            const btnFecharCalor = document.getElementById('btnFecharCalor');
+
+            btnToggleCalor.addEventListener('click', () => {
+                modalCalor.classList.add('active');
+            });
+
+            btnFecharCalor.addEventListener('click', () => {
+                modalCalor.classList.remove('active');
+            });
+
+            modalCalor.addEventListener('click', (e) => { 
+                if(e.target === modalCalor) modalCalor.classList.remove('active'); 
+            });
 
         });
     </script>
