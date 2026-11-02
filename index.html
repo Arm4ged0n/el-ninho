@@ -297,6 +297,11 @@
             <button id="btnAbrirModal" class="cyber-panel p-4 w-full bg-blue-900/40 hover:bg-blue-800/60 border border-blue-500 text-white font-tech font-bold text-lg transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] cursor-pointer">
                 <i class="fa-solid fa-satellite-dish mr-2 animate-pulse text-blue-400"></i> DADOS REAIS DOS RIOS (API)
             </button>
+
+            <!-- NOVO BOTÃO: MANCHAS DE INUNDAÇÃO -->
+            <button id="btnToggleInundacao" class="cyber-panel p-4 w-full bg-red-900/40 hover:bg-red-800/60 border border-red-500 text-white font-tech font-bold text-lg transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:shadow-[0_0_25px_rgba(239,68,68,0.6)] cursor-pointer">
+                <i class="fa-solid fa-house-flood-water mr-2 text-red-400"></i> MANCHAS DE INUNDAÇÃO
+            </button>
         </section>
 
     </main>
@@ -324,12 +329,12 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             // ==========================================
-            // 1. DADOS BASE DOS RIOS
+            // 1. DADOS BASE DOS RIOS (ATUALIZADOS COM PRINTS)
             // ==========================================
             const RIVERS = [
                 { 
                     id: 'taquari', name: 'Rio Taquari', cota_inundacao: 19.00, lat: -29.20, lon: -51.98,
-                    nivelAtual: 12.50, status: 'NORMAL', cor: '#22c55e', basePeak: 160,
+                    nivelAtual: 12.85, status: 'NORMAL', cor: '#22c55e', basePeak: 160,
                     coords: [
                         [-28.84,-50.05], [-28.90,-50.20], [-28.98,-50.45], [-29.02,-50.91], 
                         [-29.15,-51.87], [-29.28,-51.98], [-29.45,-51.96], [-29.61,-51.93], 
@@ -347,7 +352,7 @@
                 },
                 { 
                     id: 'sinos', name: 'Rio dos Sinos', cota_inundacao: 4.50, lat: -29.72, lon: -50.90,
-                    nivelAtual: 2.00, status: 'NORMAL', cor: '#22c55e', basePeak: 130,
+                    nivelAtual: 1.89, status: 'NORMAL', cor: '#22c55e', basePeak: 130,
                     coords: [
                         [-29.77,-50.29], [-29.75,-50.40], [-29.70,-50.50], [-29.65,-50.78], 
                         [-29.72,-51.13], [-29.76,-51.15], [-29.85,-51.16], [-29.90,-51.18], 
@@ -355,8 +360,8 @@
                     ]
                 },
                 { 
-                    id: 'guaiba', name: 'Lago Guaíba', cota_inundacao: 3.00, lat: -30.35, lon: -51.18,
-                    nivelAtual: 1.20, status: 'NORMAL', cor: '#22c55e', basePeak: 185,
+                    id: 'guaiba', name: 'Lago Guaíba', cota_inundacao: 2.60, lat: -30.35, lon: -51.18,
+                    nivelAtual: 0.76, status: 'NORMAL', cor: '#22c55e', basePeak: 185,
                     coords: [
                         [-29.99,-51.21], [-30.03,-51.23], [-30.08,-51.25], [-30.15,-51.24], 
                         [-30.25,-51.25], [-30.35,-51.18], [-30.45,-51.10], [-30.60,-51.09], 
@@ -659,6 +664,55 @@
 
             btnFechar.addEventListener('click', () => modal.classList.remove('active'));
             modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
+
+            // ==========================================
+            // 10. CAMADA DE MANCHAS DE INUNDAÇÃO (BASE 2024 -> PROJEÇÃO 2026/27)
+            // ==========================================
+            let floodLayerGroup = L.layerGroup();
+            let isFloodVisible = false;
+
+            const floodZones = [
+                { lat: -29.45, lon: -51.96, radius: 15000, name: "Vale do Taquari", desc: "Projeção de enxurradas severas e elevação rápida (acima de 20m). Cidades em risco: Muçum, Roca Sales, Lajeado, Estrela." },
+                { lat: -29.92, lon: -51.18, radius: 12000, name: "Região Metropolitana", desc: "Risco de transbordamento de diques e escoamento impedido. Foco crítico: Canoas e São Leopoldo." },
+                { lat: -30.04, lon: -51.28, radius: 18000, name: "Guaíba e Eldorado do Sul", desc: "Represamento extremo do Guaíba projetado para ultrapassar 4.5m. Inundação duradoura de áreas urbanas." },
+                { lat: -29.76, lon: -51.14, radius: 10000, name: "Vale do Sinos", desc: "Escoamento extremamente lento, causando alagamentos prolongados nos municípios ribeirinhos." },
+                { lat: -31.77, lon: -52.20, radius: 25000, name: "Estuário da Lagoa dos Patos", desc: "Represamento colossal das águas descendo do norte aliado a ventos do quadrante sul. Risco em Pelotas e Rio Grande." }
+            ];
+
+            floodZones.forEach(zone => {
+                const circle = L.circle([zone.lat, zone.lon], {
+                    color: '#ef4444',
+                    fillColor: '#ef4444',
+                    fillOpacity: 0.35,
+                    weight: 2,
+                    dashArray: '4, 4'
+                });
+                circle.bindTooltip(`
+                    <div class="text-center p-2 bg-slate-900 border border-red-500 rounded">
+                        <strong style="color: #ef4444; font-size: 14px; font-family: 'Rajdhani', sans-serif;">${zone.name}</strong><br/>
+                        <span class="text-[11px] text-slate-300 whitespace-normal block w-48 mt-1 leading-tight">${zone.desc}</span>
+                    </div>
+                `, { className: 'bg-transparent border-0 shadow-none', direction: 'top' });
+                floodLayerGroup.addLayer(circle);
+            });
+
+            const btnToggleFlood = document.getElementById('btnToggleInundacao');
+            btnToggleFlood.addEventListener('click', () => {
+                isFloodVisible = !isFloodVisible;
+                if (isFloodVisible) {
+                    floodLayerGroup.addTo(rsMap);
+                    btnToggleFlood.classList.replace('bg-red-900/40', 'bg-red-600/80');
+                    btnToggleFlood.innerHTML = '<i class="fa-solid fa-eye-slash mr-2 text-white"></i> OCULTAR MANCHAS';
+                    rsMap.flyTo([-30.2, -51.5], 7, { duration: 1.5 }); // Abre a visão do estado todo
+                    
+                    // Rola a tela para o mapa automaticamente (essencial para celular)
+                    document.querySelector('.map-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    rsMap.removeLayer(floodLayerGroup);
+                    btnToggleFlood.classList.replace('bg-red-600/80', 'bg-red-900/40');
+                    btnToggleFlood.innerHTML = '<i class="fa-solid fa-house-flood-water mr-2 text-red-400"></i> MANCHAS DE INUNDAÇÃO';
+                }
+            });
 
         });
     </script>
